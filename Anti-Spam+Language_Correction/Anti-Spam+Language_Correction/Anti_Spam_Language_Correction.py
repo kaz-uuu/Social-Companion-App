@@ -7,4 +7,5 @@ import cv2
 
 if __name__ == '__main__':
     while True:
-        
+        #setup OCR and check if whatsapp is open
+        print("checking if whatsapp is open")
