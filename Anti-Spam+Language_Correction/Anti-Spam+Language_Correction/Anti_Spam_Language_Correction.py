@@ -17,6 +17,7 @@ if __name__ == '__main__':
         img = ImageGrab.grab(bbox=(0, 0, width, height))
         img_np = np.array(img)
         finalimg = cv2.cvtColor(img_np, cv2.COLOR_BGR2RGB)
+        cv2.namedWindow("Not OBS")
         cv2.imshow("Not OBS", finalimg)
         
         
