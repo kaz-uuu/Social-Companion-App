@@ -1,15 +1,20 @@
 
 #note: this script runs in the background, and only works on android, mac or windows
+from lib2to3 import pytree
 from PIL import ImageGrab
 import kivy #importing necessary libraries for OCR and screen recording
 from kivy.utils import platform
 import numpy as np
 import cv2
 import pytesseract
+pytesseract.pytesseract.tesseract_cmd = r'C:\\Program Files\\Tesseract-OCR\\tesseract.exe'
 
-if platform == 'win':
+AntiSpamEnabled = True #Check if the script has been enabled
+
+
+if platform == 'win': #detect the platform that this script is being run on ,and set the width and height of the image to be captured accordingly.
     import pyautogui
-    width, height = pyautogui.size()
+    width, height = pyautogui.size() # pyautogui is used because it is meant for windows, so goes for tkinter and kivy.Window
 if platform == 'macosx':
     from tkinter import Tk
 
@@ -22,32 +27,53 @@ if platform == 'android':
     width = Window.size(0)
     height = Window.size(1)
 
+#reading template images from assets, desktop templates are best stored in an array since there are two of them.
+desktoptemplates = [cv2.imread('assets/win_template_img.png', 0), cv2.imread('assets/win_template_typing_img.png', 0) ]
+mobiletemplateimages = [cv2.imread('assets/android_template_idle_img.png'), cv2.imread('assets/android_template_typing.png'), cv2.imread('assets/android_textfield_template.png')]
 
-testimage = cv2.imread('assets/testimage.png', 0)
-desktoptemplateimage = cv2.imread('assets/win_template_img.png', 0) #load all template images from assets folder in greyscale
-mobiletemplateimage = cv2.imread('assets/android_light_template_img.png', 0)   
 
 didlaunchwhatsapp = False
 
 if __name__ == '__main__':
-    while True:
+
+    while AntiSpamEnabled:
         #setup screen recording
         img = ImageGrab.grab(bbox=(0, 0, width, height)) #using PIllow to take an image of the user's screen
         img_np = np.array(img) #converts image to numpy array to be processed by opencv
         finalimg = cv2.cvtColor(img_np, cv2.COLOR_BGR2GRAY) #converts image to RGB
 
-        #OCR
-        if platform == 'win' or platform == 'macosx':
-            
-            h, w = desktoptemplateimage.shape
-        if platform == 'android':
-            h, w = mobiletemplateimage.shape
+        #Detect if whatsap is open
+        imagechecked = finalimg.copy() # take a copy of the image from the screen recorder
+        if platform == 'win' or platform == 'macosx': #if this script is being run on a desktop/laptop, get the width and height of the template image
+            for template in desktoptemplates: 
+                h, w = template.shape
+                results = cv2.matchTemplate(imagechecked, template, cv2.TM_CCOEFF_NORMED) #match templates for the copy of the image
+                locations = np.where(results >= 0.75) # threshold is used so as to ensure that detection is accurate.
         
-        imagechecked = finalimg.copy()
-        result = cv2.matchTemplate(imagechecked, desktoptemplateimage, cv2.TM_CCOEFF_NORMED)
-        locations = np.where(result >= 0.8)
-        print(list(zip(*locations[::-1])))
-        if list(zip(*locations[::-1])).count > 0:
+        if platform == 'android':
+            for template in mobiletemplateimages: 
+                h, w = template.shape
+                results = cv2.matchTemplate(imagechecked, template, cv2.TM_CCOEFF_NORMED) #match templates for the copy of the image
+                locations = np.where(results >= 0.75) # threshold is used so as to ensure that detection is accurate.
+        
+        print(list(zip(*locations[::-1]))) 
+        if (list(zip(*locations[::-1])) != []): #if there are matches of the template found in the orignal image
             didlaunchwhatsapp = True
+        if (list(zip(*locations[::-1])) == []):
+            didlaunchwhatsapp = False
+        print(didlaunchwhatsapp)
+        
+
+        while didlaunchwhatsapp:
+            #if the user has whatsapp open and is typing, locate the textfield and begin OCR on the text being typed
+            textfieldlocation = list(zip(*locations[::-1]))[0]
+            textfieldimg = ImageGrab.grab(bbox=(textfieldlocation[0], textfieldlocation[1], textfieldlocation[0] + w, textfieldlocation[1] + h))
+            textfieldimgnp = np.array(textfieldimg)
+            textfieldimgnp = cv2.cvtColor(textfieldimgnp, cv2.COLOR_RGB2GRAY)
+            textfieldimgnp = cv2.GaussianBlur(textfieldimgnp, (3, 3), 0) # change image captured from textfield to grayscale and blur out all nearby objects to maximise OCR accuracy
+            text = pytesseract.image_to_string(textfieldimgnp, lang='eng', config="--psm 6")
+            print(text)
+
+
         
         
