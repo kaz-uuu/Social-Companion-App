@@ -1,15 +1,7 @@
 
 #note: this script runs in the background, and only works on android, mac or windows
-from curses import window
-from re import template
-from tkinter.tix import Tree
-from turtle import width
-from typing import final
-from winsound import PlaySound
 from PIL import ImageGrab
-from bs4 import ResultSet
 import kivy #importing necessary libraries for OCR and screen recording
-from kivy.core.window import Window
 from kivy.utils import platform
 import numpy as np
 import cv2
