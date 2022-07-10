@@ -18,6 +18,7 @@ if platform == 'macosx':
     wdith = root.winfo_screenwidth()
 
 if platform == 'android':
+    from kivy.core.window import Window
     width = Window.size(0)
     height = Window.size(1)
 
