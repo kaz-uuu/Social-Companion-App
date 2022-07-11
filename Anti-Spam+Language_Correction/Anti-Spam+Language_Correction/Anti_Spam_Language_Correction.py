@@ -1,7 +1,9 @@
 
 #note: this script runs in the background, and only works on android, mac or windows
 from lib2to3 import pytree
+from msilib.schema import Property
 from PIL import ImageGrab
+from cv2 import PyRotationWarper
 import kivy #importing necessary libraries for OCR and screen recording
 from kivy.utils import platform
 import numpy as np
@@ -33,8 +35,10 @@ mobiletemplateimages = [cv2.imread('assets/android_template_idle_img.png'), cv2.
 
 
 didlaunchwhatsapp = False
+messagecounter = 0 #counter for how many messages the user has sent in a short period of time
 
 if __name__ == '__main__':
+
 
     while AntiSpamEnabled:
         #setup screen recording
@@ -64,16 +68,21 @@ if __name__ == '__main__':
         print(didlaunchwhatsapp)
         
 
-        while didlaunchwhatsapp:
+        while didlaunchwhatsapp == True:
             #if the user has whatsapp open and is typing, locate the textfield and begin OCR on the text being typed
             textfieldlocation = list(zip(*locations[::-1]))[0]
             textfieldimg = ImageGrab.grab(bbox=(textfieldlocation[0], textfieldlocation[1], textfieldlocation[0] + w, textfieldlocation[1] + h))
             textfieldimgnp = np.array(textfieldimg)
             textfieldimgnp = cv2.cvtColor(textfieldimgnp, cv2.COLOR_RGB2GRAY)
             textfieldimgnp = cv2.GaussianBlur(textfieldimgnp, (3, 3), 0) # change image captured from textfield to grayscale and blur out all nearby objects to maximise OCR accuracy
-            text = pytesseract.image_to_string(textfieldimgnp, lang='eng', config="--psm 6")
-            print(text)
+            
+            messagestring = pytesseract.image_to_string(textfieldimgnp)
 
-
-        
+            if messagestring != "Type a message" or messagestring != "message":
+                from language_corrector import language_Corrector
+                #create an instance of the language corrrector and store the data from OCR for sentiment analysis
+                LanguageCorrector = language_Corrector()
+                LanguageCorrector.messagetyped = pytesseract.image_to_data(textfieldimgnp, output_type=pytesseract.Output.DICT)
+                istyping = True
+            
         
