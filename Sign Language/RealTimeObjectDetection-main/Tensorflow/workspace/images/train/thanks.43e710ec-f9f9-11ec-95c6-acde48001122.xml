@@ -1,0 +1,26 @@
+<annotation>
+	<folder>collectedimages</folder>
+	<filename>thanks.43e710ec-f9f9-11ec-95c6-acde48001122.jpg</filename>
+	<path>/Users/liuyanzhao/Documents/GitHub/Tech4Good/Sign Language/RealTimeObjectDetection-main/Tensorflow/workspace/images/collectedimages/thanks.43e710ec-f9f9-11ec-95c6-acde48001122.jpg</path>
+	<source>
+		<database>Unknown</database>
+	</source>
+	<size>
+		<width>1280</width>
+		<height>720</height>
+		<depth>3</depth>
+	</size>
+	<segmented>0</segmented>
+	<object>
+		<name>Thank you</name>
+		<pose>Unspecified</pose>
+		<truncated>0</truncated>
+		<difficult>0</difficult>
+		<bndbox>
+			<xmin>376</xmin>
+			<ymin>444</ymin>
+			<xmax>793</xmax>
+			<ymax>605</ymax>
+		</bndbox>
+	</object>
+</annotation>
