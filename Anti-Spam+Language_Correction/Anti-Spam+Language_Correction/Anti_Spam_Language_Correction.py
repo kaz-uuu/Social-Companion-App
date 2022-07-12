@@ -63,26 +63,35 @@ if __name__ == '__main__':
         print(list(zip(*locations[::-1]))) 
         if (list(zip(*locations[::-1])) != []): #if there are matches of the template found in the orignal image
             didlaunchwhatsapp = True
+            break
         if (list(zip(*locations[::-1])) == []):
             didlaunchwhatsapp = False
         print(didlaunchwhatsapp)
-        
+    
+    while didlaunchwhatsapp == True:
 
-        while didlaunchwhatsapp == True:
-            #if the user has whatsapp open and is typing, locate the textfield and begin OCR on the text being typed
-            textfieldlocation = list(zip(*locations[::-1]))[0]
-            textfieldimg = ImageGrab.grab(bbox=(textfieldlocation[0], textfieldlocation[1], textfieldlocation[0] + w, textfieldlocation[1] + h))
-            textfieldimgnp = np.array(textfieldimg)
-            textfieldimgnp = cv2.cvtColor(textfieldimgnp, cv2.COLOR_RGB2GRAY)
-            textfieldimgnp = cv2.GaussianBlur(textfieldimgnp, (3, 3), 0) # change image captured from textfield to grayscale and blur out all nearby objects to maximise OCR accuracy
+        #if the user has whatsapp open and is typing, locate the textfield and begin OCR on the text being typed
+        textfieldlocation = list(zip(*locations[::-1]))[0]
+        textfieldimg = ImageGrab.grab(bbox=(textfieldlocation[0], textfieldlocation[1], textfieldlocation[0] + w, textfieldlocation[1] + h))
+        textfieldimgnp = np.array(textfieldimg)
+        textfieldimgnp = cv2.cvtColor(textfieldimgnp, cv2.COLOR_RGB2GRAY)
+        textfieldimgnp = cv2.GaussianBlur(textfieldimgnp, (3, 3), 0) # change image captured from textfield to grayscale and blur out all nearby objects to maximise OCR accuracy
             
-            messagestring = pytesseract.image_to_string(textfieldimgnp)
+        messagestring = pytesseract.image_to_string(textfieldimgnp)
+        print("message detected:{}".format(messagestring))
+        if messagestring != "Type a message" or messagestring != "message":
+            from language_corrector import language_Corrector
+            #create an instance of the language corrrector and store the data from OCR for sentiment analysis
+            LanguageCorrector = language_Corrector()
+            LanguageCorrector.messagetyped = pytesseract.image_to_data(textfieldimgnp, output_type=pytesseract.Output.DICT)
+            istyping = True
 
-            if messagestring != "Type a message" or messagestring != "message":
-                from language_corrector import language_Corrector
-                #create an instance of the language corrrector and store the data from OCR for sentiment analysis
-                LanguageCorrector = language_Corrector()
-                LanguageCorrector.messagetyped = pytesseract.image_to_data(textfieldimgnp, output_type=pytesseract.Output.DICT)
-                istyping = True
+            #check if the user has finished typing a line:
+            
+            
+
+            
+        
+        
             
         

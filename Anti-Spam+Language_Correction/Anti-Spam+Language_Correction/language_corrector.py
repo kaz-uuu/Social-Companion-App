@@ -3,11 +3,11 @@ import pytesseract
 
 class language_Corrector(object):
     def __init__(self):
-        self._messagedata = pytesseract.Output.DICT
+        self._messagetyped = pytesseract.Output.DICT
 
     @property
     def messagetyped(self):
-        return self._messagedata
+        return self._messagetyped
     
 
     @messagetyped.setter
@@ -16,6 +16,9 @@ class language_Corrector(object):
         self._messagetyped = message
         wordlist = list(enumerate(self._messagetyped["text"]))
         del wordlist[:4] #remove all spaces in front of the text
+        
+
+
         
         
 
