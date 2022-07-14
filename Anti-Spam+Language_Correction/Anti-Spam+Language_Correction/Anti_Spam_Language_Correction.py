@@ -1,9 +1,6 @@
 
 #note: this script runs in the background, and only works on android, mac or windows
-from lib2to3 import pytree
-from msilib.schema import Property
 from PIL import ImageGrab
-from cv2 import PyRotationWarper
 import kivy #importing necessary libraries for OCR and screen recording
 from kivy.utils import platform
 import numpy as np
@@ -22,7 +19,7 @@ if platform == 'macosx':
 
     root = Tk()
     height = root.winfo_screenheight()
-    wdith = root.winfo_screenwidth()
+    width = root.winfo_screenwidth()
 
 if platform == 'android':
     from kivy.core.window import Window
@@ -30,7 +27,7 @@ if platform == 'android':
     height = Window.size(1)
 
 #reading template images from assets, desktop templates are best stored in an array since there are two of them.
-desktoptemplates = [cv2.imread('assets/win_template_img.png', 0), cv2.imread('assets/win_template_typing_img.png', 0) ]
+desktoptemplates = [cv2.imread('assets/win_template_img.png', 0), cv2.imread('assets/win_template_typing_img.png', 0), cv2.imread('assets/macosx_template_idle_img.png', 0), cv2.imread('assets/macosx_template_img.png', 0)]
 mobiletemplateimages = [cv2.imread('assets/android_template_idle_img.png'), cv2.imread('assets/android_template_typing.png'), cv2.imread('assets/android_textfield_template.png')]
 
 
