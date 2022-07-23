@@ -1,16 +1,17 @@
 
 #note: this script runs in the background, and only works on android, mac or windows
-from lib2to3 import pytree
-from msilib.schema import Property
+from curses import window
+from logging.config import listen
+from multiprocessing.connection import Listener
+from socket import timeout
 from PIL import ImageGrab
-from cv2 import PyRotationWarper
 import kivy #importing necessary libraries for OCR and screen recording
 from kivy.utils import platform
 import numpy as np
 import cv2
 import pytesseract
 pytesseract.pytesseract.tesseract_cmd = r'C:\\Program Files\\Tesseract-OCR\\tesseract.exe'
-
+from threading import Event
 AntiSpamEnabled = True #Check if the script has been enabled
 
 
@@ -22,7 +23,7 @@ if platform == 'macosx':
 
     root = Tk()
     height = root.winfo_screenheight()
-    wdith = root.winfo_screenwidth()
+    width = root.winfo_screenwidth()
 
 if platform == 'android':
     from kivy.core.window import Window
@@ -30,59 +31,81 @@ if platform == 'android':
     height = Window.size(1)
 
 #reading template images from assets, desktop templates are best stored in an array since there are two of them.
-desktoptemplates = [cv2.imread('assets/win_template_img.png', 0), cv2.imread('assets/win_template_typing_img.png', 0) ]
+desktoptemplates = [cv2.imread('assets/win_template_img.png', 0), cv2.imread('assets/win_template_typing_img.png', 0)]
 mobiletemplateimages = [cv2.imread('assets/android_template_idle_img.png'), cv2.imread('assets/android_template_typing.png'), cv2.imread('assets/android_textfield_template.png')]
+mactemplates = [cv2.imread('assets/macosx_template_idle_img.png', 0), cv2.imread('assets/macosx_template_img.png', 0)]
 
 
-didlaunchwhatsapp = False
 messagecounter = 0 #counter for how many messages the user has sent in a short period of time
+messagestring = ""
+from pynput import keyboard
+def startscreenrecorder():
+        global didlaunchwhatsapp
+        while AntiSpamEnabled:
+            #setup screen recording
+            img = ImageGrab.grab(bbox=(0, 0, width, height)) #using PIllow to take an image of the user's screen
+            img_np = np.array(img) #converts image to numpy array to be processed by opencv
+            finalimg = cv2.cvtColor(img_np, cv2.COLOR_BGR2GRAY) #converts image to GrayScale
 
-if __name__ == '__main__':
-
-
-    while AntiSpamEnabled:
-        #setup screen recording
-        img = ImageGrab.grab(bbox=(0, 0, width, height)) #using PIllow to take an image of the user's screen
-        img_np = np.array(img) #converts image to numpy array to be processed by opencv
-        finalimg = cv2.cvtColor(img_np, cv2.COLOR_BGR2GRAY) #converts image to RGB
-
-        #Detect if whatsap is open
-        imagechecked = finalimg.copy() # take a copy of the image from the screen recorder
-        if platform == 'win' or platform == 'macosx': #if this script is being run on a desktop/laptop, get the width and height of the template image
-            for template in desktoptemplates: 
-                h, w = template.shape
-                results = cv2.matchTemplate(imagechecked, template, cv2.TM_CCOEFF_NORMED) #match templates for the copy of the image
-                locations = np.where(results >= 0.75) # threshold is used so as to ensure that detection is accurate.
+            #Detect if whatsap is open
+            imagechecked = finalimg.copy() # take a copy of the image from the screen recorder
+            if platform == 'win': #if this script is being run on a desktop/laptop, get the width and height of the template image
+                for template in desktoptemplates: 
+                    h, w = template.shape
+                    results = cv2.matchTemplate(imagechecked, template, cv2.TM_CCOEFF_NORMED) #match templates for the copy of the image
+                    locations = np.where(results >= 0.75) # threshold is used so as to ensure that detection is accurate.
+            if platform == "macosx":
+                for template in mactemplates:
+                    h,w = template.shape
+                    results = cv2.matchTemplate(imagechecked, template, cv2.TM_CCOEFF_NORMED)
+                    locations = np.where(results >= 0.75)
+            if platform == 'android':
+                for template in mobiletemplateimages: 
+                    h, w = template.shape
+                    results = cv2.matchTemplate(imagechecked, template, cv2.TM_CCOEFF_NORMED) #match templates for the copy of the image
+                    locations = np.where(results >= 0.75) # threshold is used so as to ensure that detection is accurate.
         
-        if platform == 'android':
-            for template in mobiletemplateimages: 
-                h, w = template.shape
-                results = cv2.matchTemplate(imagechecked, template, cv2.TM_CCOEFF_NORMED) #match templates for the copy of the image
-                locations = np.where(results >= 0.75) # threshold is used so as to ensure that detection is accurate.
-        
-        print(list(zip(*locations[::-1]))) 
-        if (list(zip(*locations[::-1])) != []): #if there are matches of the template found in the orignal image
-            didlaunchwhatsapp = True
-        if (list(zip(*locations[::-1])) == []):
-            didlaunchwhatsapp = False
-        print(didlaunchwhatsapp)
-        
-
-        while didlaunchwhatsapp == True:
-            #if the user has whatsapp open and is typing, locate the textfield and begin OCR on the text being typed
-            textfieldlocation = list(zip(*locations[::-1]))[0]
-            textfieldimg = ImageGrab.grab(bbox=(textfieldlocation[0], textfieldlocation[1], textfieldlocation[0] + w, textfieldlocation[1] + h))
-            textfieldimgnp = np.array(textfieldimg)
-            textfieldimgnp = cv2.cvtColor(textfieldimgnp, cv2.COLOR_RGB2GRAY)
-            textfieldimgnp = cv2.GaussianBlur(textfieldimgnp, (3, 3), 0) # change image captured from textfield to grayscale and blur out all nearby objects to maximise OCR accuracy
+            if (list(zip(*locations[::-1])) != []): #if there are matches of the template found in the orignal image
+                if platform == "win" or platform == "mac":
+                    listener = keyboard.Listener(on_release=on_release)
+                if platform == "android":
+                    from AndroidKeyboardListener import keyboardlistener
+                    listener = keyboardlistener()
+                listener.daemon = True
+                listener.start()
+                listener.join()
             
-            messagestring = pytesseract.image_to_string(textfieldimgnp)
+            if (list(zip(*locations[::-1])) == []):
+                didlaunchwhatsapp = False
+            print(list(zip(*locations[::-1])))
+def on_release(key):
+    global messagestring
+    if hasattr(key, 'char'):
+        messagestring += key.char
+    if key == keyboard.Key.backspace: 
+        messagestring = messagestring[:-1]
+    if key == keyboard.Key.space:
+        messagestring += " "
+    if key == keyboard.Key.enter or key == keyboard.Key.alt:
+        return False
+    print(messagestring)        
+        
+if __name__ == '__main__':
+    from threading import Thread
+    from threading import Event
 
-            if messagestring != "Type a message" or messagestring != "message":
-                from language_corrector import language_Corrector
-                #create an instance of the language corrrector and store the data from OCR for sentiment analysis
-                LanguageCorrector = language_Corrector()
-                LanguageCorrector.messagetyped = pytesseract.image_to_data(textfieldimgnp, output_type=pytesseract.Output.DICT)
-                istyping = True
+    didlaunchwhatsapp = Event()
+    
+    
+
+    screenrecorder = Thread(target=startscreenrecorder)
+    screenrecorder.daemon = True   
+    screenrecorder.start()
+    screenrecorder.join()  
+
+
+            
+        
+        
             
         
