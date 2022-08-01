@@ -67,9 +67,6 @@ You can also collect training data (index finger coordinate history) for finger 
 ### keypoint_classification.ipynb
 This is a model training script for hand sign recognition.
 
-### point_history_classification.ipynb
-This is a model training script for finger gesture recognition.
-
 ### model/keypoint_classifier
 This directory stores files related to hand sign recognition.<br>
 The following files are stored.
@@ -77,14 +74,6 @@ The following files are stored.
 * Trained model(keypoint_classifier.tflite)
 * Label data(keypoint_classifier_label.csv)
 * Inference module(keypoint_classifier.py)
-
-### model/point_history_classifier
-This directory stores files related to finger gesture recognition.<br>
-The following files are stored.
-* Training data(point_history.csv)
-* Trained model(point_history_classifier.tflite)
-* Label data(point_history_classifier_label.csv)
-* Inference module(point_history_classifier.py)
 
 ### utils/cvfpscalc.py
 This is a module for FPS measurement.
@@ -113,29 +102,6 @@ To change the number of training data classes, change the value of "NUM_CLASSES 
 #### X.Model structure
 The image of the model prepared in "[keypoint_classification.ipynb](keypoint_classification.ipynb)" is as follows.
 <img src="https://user-images.githubusercontent.com/37477845/102246723-69c76a00-3f42-11eb-8a4b-7c6b032b7e71.png" width="50%"><br><br>
-
-### Finger gesture recognition training
-#### 1.Learning data collection
-Press "h" to enter the mode to save the history of fingertip coordinates (displayed as "MODE:Logging Point History").<br>
-<img src="https://user-images.githubusercontent.com/37477845/102249074-4d78fc80-3f45-11eb-9c1b-3eb975798871.jpg" width="60%"><br><br>
-If you press "0" to "9", the key points will be added to "model/point_history_classifier/point_history.csv" as shown below.<br>
-1st column: Pressed number (used as class ID), 2nd and subsequent columns: Coordinate history<br>
-<img src="https://user-images.githubusercontent.com/37477845/102345850-54ede380-3fe1-11eb-8d04-88e351445898.png" width="80%"><br><br>
-The key point coordinates are the ones that have undergone the following preprocessing up to ④.<br>
-<img src="https://user-images.githubusercontent.com/37477845/102244148-49e27700-3f3f-11eb-82e2-fc7de42b30fc.png" width="80%"><br><br>
-In the initial state, 4 types of learning data are included: stationary (class ID: 0), clockwise (class ID: 1), counterclockwise (class ID: 2), and moving (class ID: 4). <br>
-If necessary, add 5 or later, or delete the existing data of csv to prepare the training data.<br>
-<img src="https://user-images.githubusercontent.com/37477845/102350939-02b0c080-3fe9-11eb-94d8-54a3decdeebc.jpg" width="20%">　<img src="https://user-images.githubusercontent.com/37477845/102350945-05131a80-3fe9-11eb-904c-a1ec573a5c7d.jpg" width="20%">　<img src="https://user-images.githubusercontent.com/37477845/102350951-06444780-3fe9-11eb-98cc-91e352edc23c.jpg" width="20%">　<img src="https://user-images.githubusercontent.com/37477845/102350942-047a8400-3fe9-11eb-9103-dbf383e67bf5.jpg" width="20%">
-
-#### 2.Model training
-Open "[point_history_classification.ipynb](point_history_classification.ipynb)" in Jupyter Notebook and execute from top to bottom.<br>
-To change the number of training data classes, change the value of "NUM_CLASSES = 4" and <br>modify the label of "model/point_history_classifier/point_history_classifier_label.csv" as appropriate. <br><br>
-
-#### X.Model structure
-The image of the model prepared in "[point_history_classification.ipynb](point_history_classification.ipynb)" is as follows.
-<img src="https://user-images.githubusercontent.com/37477845/102246771-7481ff00-3f42-11eb-8ddf-9e3cc30c5816.png" width="50%"><br>
-The model using "LSTM" is as follows. <br>Please change "use_lstm = False" to "True" when using (tf-nightly required (as of 2020/12/16))<br>
-<img src="https://user-images.githubusercontent.com/37477845/102246817-8368b180-3f42-11eb-9851-23a7b12467aa.png" width="60%">
 
 # Reference
 * [MediaPipe](https://mediapipe.dev/)
