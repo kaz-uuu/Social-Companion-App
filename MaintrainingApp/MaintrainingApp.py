@@ -1,6 +1,8 @@
 from re import U
 from kivy.app import App
 from kivy.uix.widget import Widget
+from kivy.uix.button import Button
+
 
 SERVICE_NAME = u'{packagename}.Service{servicename}'.format(
     packagename=u'org.kivy.android.antispamservice',
@@ -16,6 +18,9 @@ class trainingApp(App): #this is the main training app that is going to be downl
         antispamservice.start(mActivity,'')
         return antispamservice
 
+    def build(self):
+        return Button(text='hello world')
+        
 if __name__=="__main__":
     app = trainingApp()
     app.run()
