@@ -46,7 +46,7 @@ class trainingApp(MDApp): #this is the main training app that is going to be dow
         texture.blit_buffer(buffer, colorfmt='bgr',bufferfmt='ubyte')
         self.image.texture = texture
 
-    def recognizeSpeech(self):
+    def recognizeSpeech(self, *args):
         self.listen = True
         print("Starting Recording")
         recognizer = speech_recognition.Recognizer() #start recognizing speech
