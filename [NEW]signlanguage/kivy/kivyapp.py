@@ -1,3 +1,4 @@
+from tkinter import Widget
 from kivy.lang import Builder
 from kivymd.app import MDApp
 from kivymd.uix.boxlayout import MDBoxLayout
@@ -32,26 +33,35 @@ MDScreen:
             text: 'Training Sign Language'
 
 '''
-        
 
 class myCam(MDApp):
 
-    cam = 0
-
     def build(self):
-        self.layout = MDBoxLayout(orientation="vertical")
+        self.camera = 0
+        self.layout = Widget()
         self.theme_cls.material_style = "M3"
         self.theme_cls.theme_style = "Dark"
-        print("----------------------------------------------------------------")
         return Builder.load_string( KV ) 
 
 
     def cam(self):
-        self.image = Image()
-        self.capture = cv2.VideoCapture(0)
-        self.layout.add_widget(self.image)
-        cv2.namedWindow("CV2 Image")
-        Clock.schedule_interval(self.load_video, 1/60)
+        if self.camera == 0:
+            print("hi")
+            self.layout.add_widget(MDRaisedButton(text='Hello 1'))
+            # self.image = Image()
+            # self.layout = BoxLayout()
+            # self.layout.add_widget(self.image)
+            # self.capture = cv2.VideoCapture(0)
+            # cv2.namedWindow("CV2 Image")
+            # Clock.schedule_interval(self.load_video, 1/60)
+            self.camera = 1
+        elif self.camera == 1:
+            print("-")
+            self.camera = 0
+            # self.capture.release()
+            # cv2.destroyAllWindows()
+
+        
 
        
     def load_video(self, *args):
@@ -63,5 +73,6 @@ class myCam(MDApp):
         texture = Texture.create(size=(frame.shape[1],frame.shape[0]), colorfmt='bgr')
         texture.blit_buffer(buffer, colorfmt='bgr',bufferfmt='ubyte')
         self.image.texture = texture
+
 
 myCam().run()
