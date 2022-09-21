@@ -4,9 +4,11 @@ from tkinter import Image
 from kivymd.app import MDApp
 from kivymd.uix.button import MDRaisedButton
 from kivymd.uix.boxlayout import MDBoxLayout
+from kivymd.uix.label import label
 from kivy.uix.image import Image
 from kivy.clock import Clock
 from kivy.graphics.texture import Texture
+from kivy.core.window import Window
 #from jnius import autoclass
 import speech_recognition
 import pyttsx3
@@ -22,9 +24,12 @@ SERVICE_NAME = u'{packagename}.Service{servicename}'.format(
 class trainingApp(MDApp): #this is the main training app that is going to be downloaded into the user's phone
     #add code for training app here, free to change name
 
+
     def build(self):
+        Window.size = (450,975)
         layout = MDBoxLayout(orientation="vertical")
         self.image = Image()
+
         layout.add_widget(self.image)
         self.startListeningButton = MDRaisedButton(
             text="Click Here",
@@ -37,6 +42,7 @@ class trainingApp(MDApp): #this is the main training app that is going to be dow
         Clock.schedule_interval(self.load_video, 1.0/30.0)
         return layout
     
+
     def load_video(self, *args):
         ret, frame = self.capture.read()
         #load frame
@@ -45,6 +51,7 @@ class trainingApp(MDApp): #this is the main training app that is going to be dow
         texture = Texture.create(size=(frame.shape[1],frame.shape[0]), colorfmt='bgr')
         texture.blit_buffer(buffer, colorfmt='bgr',bufferfmt='ubyte')
         self.image.texture = texture
+
 
     def recognizeSpeech(self, *args):
         self.listen = True
@@ -59,6 +66,7 @@ class trainingApp(MDApp): #this is the main training app that is going to be dow
                 text = text.lower()
                 print(text)       
     
+
     def stopSpeech(self):
         self.listen = False
                 
