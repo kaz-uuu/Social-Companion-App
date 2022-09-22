@@ -100,16 +100,16 @@ def main():
     mode = 0
     number = 0
 
-    while True:
-        loading(mode, use_brect, hands, keypoint_classifier, cvFpsCalc, point_history, finger_gesture_history, keypoint_classifier_labels, cap, number)
-        # Process Key (ESC: end) #################################################
-        key = cv.waitKey(10)
-        if key == 27:  # ESC
-            cap.release()
-            cv.destroyAllWindows()
-        number, mode = select_mode(key, mode)
+    # while True:
+    #     loading(mode, use_brect, hands, keypoint_classifier, cvFpsCalc, point_history, finger_gesture_history, keypoint_classifier_labels, cap, number)
+    #     # Process Key (ESC: end) #################################################
+    #     key = cv.waitKey(10)
+    #     if key == 27:  # ESC
+    #         cap.release()
+    #         cv.destroyAllWindows()
+    #     number, mode = select_mode(key, mode)
 
-    return mode, use_brect, hands, keypoint_classifier, cvFpsCalc, point_history, finger_gesture_history, keypoint_classifier_labels, cap
+    return mode, use_brect, hands, keypoint_classifier, cvFpsCalc, point_history, finger_gesture_history, keypoint_classifier_labels, cap, number
 
 def loading(mode, use_brect, hands, keypoint_classifier, cvFpsCalc, point_history, finger_gesture_history, keypoint_classifier_labels, cap, number):
     fps = cvFpsCalc.get()
@@ -184,9 +184,9 @@ def loading(mode, use_brect, hands, keypoint_classifier, cvFpsCalc, point_histor
     debug_image = draw_info(debug_image, fps, mode, number)
 
     # Screen reflection #############################################################
-    cv.imshow('Hand Gesture Recognition', debug_image)
+    # cv.imshow('Hand Gesture Recognition', debug_image)
 
-    # return debug_image
+    return debug_image
 
 def select_mode(key, mode):
     number = -1
@@ -546,5 +546,5 @@ def draw_info(image, fps, mode, number):
     return image
 
 
-if __name__ == '__main__':
-    main()
+# if __name__ == '__main__':
+#     main()

@@ -56,33 +56,28 @@ class myCam(MDApp):
     def main(self):
         if self.camera == 0:
             self.image = Image()
-            self.root.ids.screen1.add_widget(self.image)
             # self.cap = cv.VideoCapture(0)
-            mode, use_brect, hands, keypoint_classifier, cvFpsCalc, point_history, finger_gesture_history, keypoint_classifier_labels, cap = app.main()
-            while True:
-                # self.load_video(mode, use_brect, hands, keypoint_classifier, cvFpsCalc, point_history, finger_gesture_history, keypoint_classifier_labels, cap)
-                image = app.loading(mode, use_brect, hands, keypoint_classifier, cvFpsCalc, point_history, finger_gesture_history, keypoint_classifier_labels, cap)
-                self.image_frame = image
-                buffer = cv.flip(image,0).tostring()
-                texture = Texture.create(size=(image.shape[1],image.shape[0]), colorfmt='bgr')
-                texture.blit_buffer(buffer, colorfmt='bgr',bufferfmt='ubyte')
-                self.image.texture = texture
-                time.sleep(1)
-   
+            self.mode, self.use_brect, self.hands, self.keypoint_classifier, self.cvFpsCalc, self.point_history, self.finger_gesture_history, self.keypoint_classifier_labels, self.cap, self.number = app.main()
+            self.root.ids.screen1.add_widget(self.image)
+            # while True:
+                # Process Key (ESC: end) #################################################
+                # key = cv.waitKey(10)
+                # if key == 27:  # ESC
+                #     cap.release()
+                #     cv.destroyAllWindows()
+                # number, mode = app.select_mode(key, mode)
+            Clock.schedule_interval(self.load_video, 1.0/33.0)
         elif self.camera == 1:
             self.camera = 0
             self.root.ids.screen1.remove_widget(self.image)
             # self.cap.release()
         
-    def load_video(self, mode, use_brect, hands, keypoint_classifier, cvFpsCalc, point_history, finger_gesture_history, keypoint_classifier_labels, cap):
-        print()
-        # image = app.loading(mode, use_brect, hands, keypoint_classifier, cvFpsCalc, point_history, finger_gesture_history, keypoint_classifier_labels, cap)
-        # self.image_frame = image
-        # buffer = cv.flip(image,0).tostring()
-        # texture = Texture.create(size=(image.shape[1],image.shape[0]), colorfmt='bgr')
-        # texture.blit_buffer(buffer, colorfmt='bgr',bufferfmt='ubyte')
-        # self.image.texture = texture
-
-
+    def load_video(self, *args):
+        img = app.loading(self.mode, self.use_brect, self.hands, self.keypoint_classifier, self.cvFpsCalc, self.point_history, self.finger_gesture_history, self.keypoint_classifier_labels, self.cap, self.number)
+        # cv.imshow('Hand Gesture Recognition', img)
+        buffer = cv.flip(img,0).tostring()
+        texture1 = Texture.create(size=(img.shape[1],img.shape[0]), colorfmt='bgr')
+        texture1.blit_buffer(buffer, colorfmt='bgr',bufferfmt='ubyte')
+        self.image.texture = texture1
 
 myCam().run()
