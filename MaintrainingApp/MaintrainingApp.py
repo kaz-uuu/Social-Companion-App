@@ -9,12 +9,20 @@ from kivy.uix.image import Image
 from kivy.clock import Clock
 from kivy.graphics.texture import Texture
 from kivy.core.window import Window
+from transformers import RobertaTokenizerFast, TFRobertaForSequenceClassification, pipeline
 #from jnius import autoclass
 import speech_recognition
 import pyttsx3
 import cv2 
 
+tokenizer = RobertaTokenizerFast.from_pretrained("arpanghoshal/EmoRoBERTa")
+model = TFRobertaForSequenceClassification.from_pretrained("arpanghoshal/EmoRoBERTa")
 
+emotion = pipeline('sentiment-analysis', 
+                    model='arpanghoshal/EmoRoBERTa')
+
+emotion_labels = emotion("oh im sorry to hear that")
+print(emotion_labels)
 
 SERVICE_NAME = u'{packagename}.Service{servicename}'.format(
     packagename=u'org.kivy.android.antispamservice',
