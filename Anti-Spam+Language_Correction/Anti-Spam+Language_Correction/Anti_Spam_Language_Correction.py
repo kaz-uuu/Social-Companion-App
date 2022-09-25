@@ -2,6 +2,7 @@
 #note: this script runs in the background, and only works on android, mac or windows
 import threading
 from time import time
+from tkinter import Tk
 from types import NoneType
 from PIL import ImageGrab
 import kivy #importing necessary libraries for OCR and screen recording
@@ -20,8 +21,9 @@ if platform == 'win': #detect the platform that this script is being run on ,and
     import pyautogui
     width, height = pyautogui.size() # pyautogui is used because it is meant for windows, so goes for tkinter and kivy.Window
 if platform == 'macosx':
-    width = 2880
-    height = 1800
+    root = Tk()
+    width = root.winfo_screenwidth()
+    height = root.winfo_screenheight()
     print("width: {}, height: {}".format(width, height))
 
 if platform == 'android':
@@ -32,7 +34,7 @@ if platform == 'android':
 #reading template images from assets, desktop templates are best stored in an array since there are two of them.
 desktoptemplates = [cv2.imread('assets/win_template_img.png', 0), cv2.imread('assets/win_template_typing_img.png', 0)]
 mobiletemplateimages = [cv2.imread('assets/android_template_idle_img.png'), cv2.imread('assets/android_template_typing.png'), cv2.imread('assets/android_textfield_template.png')]
-mactemplates = [cv2.imread('assets/macosx_template_img.png', 0)]
+mactemplates = [cv2.resize(cv2.imread('assets/macosx_template_img.png', 0), (0, 0), fx= (width / 2880), fy=(height / 1880))]
 sendbuttontemplate = cv2.imread('assets/android_send_button.png', 0)
 
 messagecounter = 0 #counter for how many messages the user has sent in a short period of time
@@ -76,6 +78,8 @@ def startscreenrecorder():
                     buttonlocations = np.where(buttonresults > 0.8)
                     if (list(zip(*buttonlocations[::-1])) != []):
                         h, w = sendbuttontemplate.shape
+                        bottom_right = (buttonlocations[0] + w, buttonlocations[1] + h)
+
                 listener.daemon = True
                 listener.start()
                 listener.join()
