@@ -33,9 +33,9 @@ if platform == 'android':
 
 #reading template images from assets, desktop templates are best stored in an array since there are two of them.
 desktoptemplates = [cv2.imread('assets/win_template_img.png', 0), cv2.imread('assets/win_template_typing_img.png', 0)]
-mobiletemplateimages = [cv2.imread('assets/android_template_idle_img.png'), cv2.imread('assets/android_template_typing.png'), cv2.imread('assets/android_textfield_template.png')]
+mobiletemplateimages = [cv2.resize(cv2.imread('assets/android_template_idle_img.png'), (0, 0), fx=(width * 0.875), fy=(width * 0.875))]
 mactemplates = [cv2.resize(cv2.imread('assets/macosx_template_img.png', 0), (0, 0), fx= (width / 2880), fy=(height / 1880))]
-sendbuttontemplate = cv2.imread('assets/android_send_button.png', 0)
+sendbuttontemplate = cv2.resize(cv2.imread('assets/android_send_button.png', 0), (0, 0), fx=(width * 0.125), fy=(width * 0.125))
 
 messagecounter = 0 #counter for how many messages the user has sent in a short period of time
 messagestring = ""
