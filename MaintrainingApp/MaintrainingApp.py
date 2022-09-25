@@ -1,4 +1,3 @@
-from email.mime import image
 from re import U
 from tkinter import Image
 from kivymd.app import MDApp
@@ -7,6 +6,7 @@ from kivymd.uix.boxlayout import MDBoxLayout
 from kivymd.uix.label import label
 from kivy.uix.image import Image
 from kivy.clock import Clock
+from kivy.lang import Builder
 from kivy.graphics.texture import Texture
 from kivy.core.window import Window
 from transformers import RobertaTokenizerFast, TFRobertaForSequenceClassification, pipeline
@@ -14,6 +14,8 @@ from transformers import RobertaTokenizerFast, TFRobertaForSequenceClassificatio
 import speech_recognition
 import pyttsx3
 import cv2 
+import os
+os.environ["TOKENIZERS_PARALLELISM"] = "false"
 
 tokenizer = RobertaTokenizerFast.from_pretrained("arpanghoshal/EmoRoBERTa")
 model = TFRobertaForSequenceClassification.from_pretrained("arpanghoshal/EmoRoBERTa")
@@ -29,13 +31,30 @@ SERVICE_NAME = u'{packagename}.Service{servicename}'.format(
     servicename=u'antispam'
 )
 
+
+KV = '''
+MDScreen:
+    MDBoxLayout:
+        orientation: "vertical"
+
+        MDTopAppBar:
+            title: "Training Scenarios"
+        MDRaisedButton:
+            id: togglebutton
+            text: "Start Listening"
+            on_press: app.recognizeSpeech()
+'''
+
 class trainingApp(MDApp): #this is the main training app that is going to be downloaded into the user's phone
     #add code for training app here, free to change name
 
 
     def build(self):
+        self.fps_monitor_start()
         Window.size = (450,975)
         layout = MDBoxLayout(orientation="vertical")
+        self.theme_cls.material_style = "M3"
+        self.theme_cls.theme_style = "Dark"
         self.image = Image()
 
         layout.add_widget(self.image)
@@ -48,7 +67,7 @@ class trainingApp(MDApp): #this is the main training app that is going to be dow
 
         self.capture = cv2.VideoCapture(1)
         Clock.schedule_interval(self.load_video, 1.0/30.0)
-        return layout
+        return Builder.load_string(KV)
     
 
     def load_video(self, *args):
