@@ -12,13 +12,14 @@ import pytesseract
 pytesseract.pytesseract.tesseract_cmd = r'C:\\Program Files\\Tesseract-OCR\\tesseract.exe'
 from threading import Event, Timer
 import keyboard as Keyboard
-AntiSpamEnabled = True #Check if the script has been enabled
+AntiSpamEnabled = True #Check if the script has been enable
 
-
+print(platform)
 
 if platform == 'win': #detect the platform that this script is being run on ,and set the width and height of the image to be captured accordingly.
     import pyautogui
     width, height = pyautogui.size() # pyautogui is used because it is meant for windows, so goes for tkinter and kivy.Window
+    print("width: {}, height: {}".format(width, height))
 if platform == 'macosx':
     width = 2880
     height = 1800
@@ -85,6 +86,7 @@ def startscreenrecorder():
                 
 def on_release(key):
     global messagestring
+    global didlaunchwhatsapp
     if hasattr(key, 'char') and key.char != None:
         messagestring += key.char
     if key == keyboard.Key.backspace: 
@@ -92,6 +94,8 @@ def on_release(key):
     if key == keyboard.Key.space:
         messagestring += " "
     if key == keyboard.Key.enter:
+
+
         if platform == "macosx":
 
             import time
@@ -111,16 +115,17 @@ def on_release(key):
             timeleft = 10
 
             while timeleft:
-                mins, sec = divmod(timeleft, 60)
                 time.sleep(0.1)
-                print("Second passed")
-                Keyboard.block_key("ENTER")
+                Keyboard.hook_key("ENTER", lambda e: False, suppress=True)
                 if timeleft <= 0:
+                    Keyboard.unhook_all()
                     break
                 timeleft -= 0.1
-                print("Timeleft: {}".format(timeleft))
-            Keyboard.unblock_key("ENTER")
-    print(messagestring)        
+
+    print(messagestring)
+
+    if not didlaunchwhatsapp:
+        return False        
 def releasekeyboard():
     global didFinishTimer
     didFinishTimer = True
