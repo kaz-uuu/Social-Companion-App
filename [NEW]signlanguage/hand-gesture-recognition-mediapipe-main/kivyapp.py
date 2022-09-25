@@ -105,6 +105,7 @@ class myCam(MDApp):
             name = self.root.ids.name.text
             slot = int(self.root.ids.slot.text)
             label = []
+            # New SL name in slot #####################################################
             file = "/Users/liuyanzhao/Documents/GitHub/Tech4Good/[NEW]signlanguage/hand-gesture-recognition-mediapipe-main/model/keypoint_classifier/keypoint_classifier_label.csv"
             with open(file, "r") as fin:
                 for _ in range(34):
@@ -114,7 +115,7 @@ class myCam(MDApp):
                 fout.write("\n".join(label))
             self.root.ids.name.text = ""
             self.root.ids.slot.text = ""
-
+            # On #####################################################
             self.image = Image()
             self.use_brect, self.hands, self.keypoint_classifier, self.cvFpsCalc, self.point_history, self.finger_gesture_history, self.keypoint_classifier_labels, self.cap = app.main()
             self.number = slot
@@ -123,16 +124,17 @@ class myCam(MDApp):
             self.root.ids.screen2.add_widget(self.image)
             Clock.schedule_interval(self.load_video, 1.0/10.0)
             self.camera = 1
+        
         elif self.camera == 1:
+            # Off #####################################################
             self.camera = 0
             self.key = 1
             Clock.unschedule(self.load_video)
             Clock.schedule_once(self.load_video, -1)
             self.root.ids.screen2.remove_widget(self.image)
+            # Train!! #####################################################
             time.sleep(1)
-            report , plt= keypoint.train()
-            print("REPORT")
-            print(report)
+            keypoint.train()
 
         
     def load_video(self, *args):

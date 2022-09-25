@@ -114,9 +114,8 @@ def train():
         heatmap = plt
         
         if report:
-            # print('Classification Report')
-            # print(classification_report(y_test, y_pred))
-            return (classification_report(y_test, y_pred))
+            print('Classification Report')
+            print(classification_report(y_test, y_pred))
 
     Y_pred = model.predict(X_test)
     y_pred = np.argmax(Y_pred, axis=1)
@@ -163,8 +162,6 @@ def train():
     # %%
     print(np.squeeze(tflite_results))
     print(np.argmax(np.squeeze(tflite_results)))
-
-    return report, plt
 
 
 
