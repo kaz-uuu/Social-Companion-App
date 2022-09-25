@@ -1,10 +1,14 @@
 from kivy.lang import Builder
 from kivymd.app import MDApp
 from kivymd.uix.boxlayout import MDBoxLayout
+from kivymd.uix.label import MDLabel
 from kivymd.uix.button import MDRaisedButton
+from kivy.uix.button import Button
+from kivy.uix.popup import Popup
 from kivy.uix.image import Image
 from kivy.clock import Clock
 from kivy.core.window import Window
+from kivyoav.delayed import delayable
 from kivy.graphics.texture import Texture
 
 import cv2 as cv
@@ -43,7 +47,7 @@ MDScreen:
                 orientation: "vertical"
                 pos_hint: {'center_y':0.2}
                 adaptive_height: True
-                spacing: 20
+                spacing: 10
                 MDTextField:
                     id: name
                     hint_text: "Name"
@@ -59,8 +63,6 @@ MDScreen:
                     text: "Start Training!"
                     on_press: app.train()
                     adaptive_size: True
-                MDLabel:
-                    id: label
                 MDLabel:
                     id: label
                 
@@ -97,6 +99,7 @@ class myCam(MDApp):
             self.key = 1
             Clock.unschedule(self.load_video)
             Clock.schedule_once(self.load_video, -1)
+            Clock.schedule_once(self.keyReseter)
             self.root.ids.screen1.remove_widget(self.image)
 
     # Training SL Model #####################################################
@@ -132,11 +135,23 @@ class myCam(MDApp):
             Clock.unschedule(self.load_video)
             Clock.schedule_once(self.load_video, -1)
             self.root.ids.screen2.remove_widget(self.image)
+            Clock.schedule_once(self.keyReseter)
             # Train!! #####################################################
-            time.sleep(1)
-            keypoint.train()
+            self.training()
+            
+    
+    @delayable
+    def training(self, *args):
+        yield 1 
+        reportPic, heatmap = keypoint.train()
+        popup = Popup(title='Results',
+                content=MDLabel(text=str(reportPic)),
+                size_hint=(None, None), size=(800, 1400))
+        popup.open()
 
-        
+    def keyReseter(self, *args):
+        self.key = 0
+
     def load_video(self, *args):
         img, self.data = app.loading(self.mode, self.use_brect, self.hands, self.keypoint_classifier, self.cvFpsCalc, self.point_history, self.finger_gesture_history, self.keypoint_classifier_labels, self.cap, self.number, self.key, self.data)
         # cv.imshow('Hand Gesture Recognition', img)

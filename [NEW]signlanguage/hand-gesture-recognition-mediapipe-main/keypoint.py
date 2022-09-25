@@ -110,17 +110,16 @@ def train():
         fig, ax = plt.subplots(figsize=(7, 6))
         sns.heatmap(df_cmx, annot=True, fmt='g' ,square=False)
         ax.set_ylim(len(set(y_true)), 0)
-        plt.show()
-        heatmap = plt
+        # plt.show()
         
         if report:
             print('Classification Report')
-            print(classification_report(y_test, y_pred))
+            return classification_report(y_test, y_pred), plt
 
     Y_pred = model.predict(X_test)
     y_pred = np.argmax(Y_pred, axis=1)
 
-    report = print_confusion_matrix(y_test, y_pred)
+    reportPic, heatmap = print_confusion_matrix(y_test, y_pred)
 
     # %% [markdown]
     # # Convert to model for Tensorflow-Lite
@@ -162,6 +161,8 @@ def train():
     # %%
     print(np.squeeze(tflite_results))
     print(np.argmax(np.squeeze(tflite_results)))
+
+    return reportPic, heatmap
 
 
 
