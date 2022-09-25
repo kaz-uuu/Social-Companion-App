@@ -109,9 +109,9 @@ def main():
     #         cv.destroyAllWindows()
     #     number, mode = select_mode(key, mode)
 
-    return mode, use_brect, hands, keypoint_classifier, cvFpsCalc, point_history, finger_gesture_history, keypoint_classifier_labels, cap, number
+    return use_brect, hands, keypoint_classifier, cvFpsCalc, point_history, finger_gesture_history, keypoint_classifier_labels, cap
 
-def loading(mode, use_brect, hands, keypoint_classifier, cvFpsCalc, point_history, finger_gesture_history, keypoint_classifier_labels, cap, number):
+def loading(mode, use_brect, hands, keypoint_classifier, cvFpsCalc, point_history, finger_gesture_history, keypoint_classifier_labels, cap, number, key, data):
     fps = cvFpsCalc.get()
 
     # Camera capture #####################################################
@@ -121,6 +121,11 @@ def loading(mode, use_brect, hands, keypoint_classifier, cvFpsCalc, point_histor
         cv.destroyAllWindows()
     image = cv.flip(image, 1)  # Mirror display
     debug_image = copy.deepcopy(image)
+
+    # Process Key (ESC: end) #################################################
+    if key == 1:  # ESC
+        cap.release()
+    # number, mode = select_mode(key, mode)
 
     # Detection implementation #############################################################
     image = cv.cvtColor(image, cv.COLOR_BGR2RGB)
@@ -141,11 +146,10 @@ def loading(mode, use_brect, hands, keypoint_classifier, cvFpsCalc, point_histor
             # Conversion to relative coordinates / normalized coordinates
             pre_processed_landmark_list = pre_process_landmark(
                 landmark_list)
-            pre_processed_point_history_list = pre_process_point_history(
-                debug_image, point_history)
+            # pre_processed_point_history_list = pre_process_point_history(
+            #     debug_image, point_history)
             # Write to the dataset file
-            logging_csv(number, mode, pre_processed_landmark_list,
-                        pre_processed_point_history_list)
+            data = logging_csv(number, mode, pre_processed_landmark_list, data)
 
             # Hand sign classification
             hand_sign_id = keypoint_classifier(pre_processed_landmark_list)
@@ -186,7 +190,7 @@ def loading(mode, use_brect, hands, keypoint_classifier, cvFpsCalc, point_histor
     # Screen reflection #############################################################
     # cv.imshow('Hand Gesture Recognition', debug_image)
 
-    return debug_image
+    return debug_image, data
 
 def select_mode(key, mode):
     number = -1
@@ -285,20 +289,21 @@ def pre_process_point_history(image, point_history):
     return temp_point_history
 
 
-def logging_csv(number, mode, landmark_list, point_history_list):
+def logging_csv(number, mode, landmark_list, data):
     if mode == 0:
         pass
     if mode == 1 and (0 <= number <= 9):
         csv_path = 'model/keypoint_classifier/keypoint.csv'
         with open(csv_path, 'a', newline="") as f:
             writer = csv.writer(f)
-            writer.writerow([number+20, *landmark_list])
+            writer.writerow([number+23, *landmark_list])
+        return data + 1
     # if mode == 2 and (0 <= number <= 9):
     #     csv_path = 'model/point_history_classifier/point_history.csv'
     #     with open(csv_path, 'a', newline="") as f:
     #         writer = csv.writer(f)
     #         writer.writerow([number, *point_history_list])
-    return
+    
 
 
 def draw_landmarks(image, landmark_point):
