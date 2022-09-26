@@ -33,16 +33,32 @@ SERVICE_NAME = u'{packagename}.Service{servicename}'.format(
 
 
 KV = '''
-MDScreen:
-    MDBoxLayout:
-        orientation: "vertical"
+# WindowManager:
+#     HomePage:
+#     TrainingPage:
+#     ResultsPage:
 
-        MDTopAppBar:
-            title: "Training Scenarios"
+# <HomePage>:
+# <>
+MDScreen:
+    BoxLayout:
+        id: layout
+    GridLayout:
+        cols: 2
+        id: innerlayout
+        
         MDRaisedButton:
-            id: togglebutton
-            text: "Start Listening"
-            on_press: app.recognizeSpeech()
+            id: cambutton
+            name: 'cambutton'
+            text: "Start Camera"
+    
+            on_press: app.startcam()
+        MDRaisedButton:
+            id: getscenario
+            name: 'getscenario'
+            text: "Start Scenario"
+
+
 '''
 
 class trainingApp(MDApp): #this is the main training app that is going to be downloaded into the user's phone
@@ -52,23 +68,30 @@ class trainingApp(MDApp): #this is the main training app that is going to be dow
     def build(self):
         self.fps_monitor_start()
         Window.size = (450,975)
-        layout = MDBoxLayout(orientation="vertical")
+        #layout = MDBoxLayout(orientation="vertical")
         self.theme_cls.material_style = "M3"
         self.theme_cls.theme_style = "Dark"
-        self.image = Image()
+        # self.image = Image()
 
-        layout.add_widget(self.image)
-        self.startListeningButton = MDRaisedButton(
-            text="Click Here",
-            pos_hint={'center_x': .5, 'center_y': .5},
-            size_hint=(None,None))
-        self.startListeningButton.bind(on_press=self.recognizeSpeech)
-        layout.add_widget(self.startListeningButton)
+        # layout.add_widget(self.image)
+        # self.startListeningButton = MDRaisedButton(
+        #     text="Click Here",
+        #     pos_hint={'center_x': .5, 'center_y': .5},
+        #     size_hint=(None,None))
+        # self.startListeningButton.bind(on_press=self.recognizeSpeech)
+        # layout.add_widget(self.startListeningButton)
 
-        self.capture = cv2.VideoCapture(1)
-        Clock.schedule_interval(self.load_video, 1.0/30.0)
+        # self.capture = cv2.VideoCapture(1)
+        # Clock.schedule_interval(self.load_video, 1.0/30.0)
         return Builder.load_string(KV)
     
+    def startcam(self):
+        self.image = Image()
+        print("cam started")
+        self.capture = cv2.VideoCapture(1)
+        Clock.schedule_interval(self.load_video, 1.0/30.0)
+        self.root.ids.layout.add_widget(self.image)
+
 
     def load_video(self, *args):
         ret, frame = self.capture.read()
