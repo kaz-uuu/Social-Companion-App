@@ -1,5 +1,6 @@
 from re import U
 from tkinter import Image
+from turtle import Screen
 from kivymd.app import MDApp
 from kivymd.uix.button import MDRaisedButton
 from kivymd.uix.boxlayout import MDBoxLayout
@@ -9,22 +10,26 @@ from kivy.clock import Clock
 from kivy.lang import Builder
 from kivy.graphics.texture import Texture
 from kivy.core.window import Window
-from transformers import RobertaTokenizerFast, TFRobertaForSequenceClassification, pipeline
+from kivymd.theming import ThemeManager
+from kivy.uix.screenmanager import ScreenManager, Screen
+#from transformers import RobertaTokenizerFast, TFRobertaForSequenceClassification, pipeline
 #from jnius import autoclass
+import random
 import speech_recognition
 import pyttsx3
 import cv2 
 import os
-os.environ["TOKENIZERS_PARALLELISM"] = "false"
 
-tokenizer = RobertaTokenizerFast.from_pretrained("arpanghoshal/EmoRoBERTa")
-model = TFRobertaForSequenceClassification.from_pretrained("arpanghoshal/EmoRoBERTa")
+# os.environ["TOKENIZERS_PARALLELISM"] = "false"
 
-emotion = pipeline('sentiment-analysis', 
-                    model='arpanghoshal/EmoRoBERTa')
+# tokenizer = RobertaTokenizerFast.from_pretrained("arpanghoshal/EmoRoBERTa")
+# model = TFRobertaForSequenceClassification.from_pretrained("arpanghoshal/EmoRoBERTa")
 
-emotion_labels = emotion("oh im sorry to hear that")
-print(emotion_labels)
+# emotion = pipeline('sentiment-analysis', 
+#                     model='arpanghoshal/EmoRoBERTa')
+
+# emotion_labels = emotion("oh im sorry to hear that")
+# print(emotion_labels)
 
 SERVICE_NAME = u'{packagename}.Service{servicename}'.format(
     packagename=u'org.kivy.android.antispamservice',
@@ -33,33 +38,62 @@ SERVICE_NAME = u'{packagename}.Service{servicename}'.format(
 
 
 KV = '''
-# WindowManager:
-#     HomePage:
-#     TrainingPage:
-#     ResultsPage:
+WindowManager:
+    HomePage:
+    TrainingPage:
+    ResultsPage:
 
-# <HomePage>:
-# <>
-MDScreen:
-    BoxLayout:
-        id: layout
-    GridLayout:
-        cols: 2
-        id: innerlayout
-        
+<HomePage>:
+    name: 'home'
+    MDRaisedButton:
+        text: "Start Training Scenario"
+        on_press: app.root.current = 'training'
+
+<TrainingPage>:
+    name: 'training'
+    MDScreen:
+
+        BoxLayout:
+            id: layout
+            orientation: 'vertical'
+            adaptive_size: True
+
+        MDTopAppBar:
+            title: "This is an MDToolbar"
+            pos_hint: {"center_y": 0.9}
         MDRaisedButton:
             id: cambutton
             name: 'cambutton'
             text: "Start Camera"
-    
             on_press: app.startcam()
+            pos_hint: {"center_x": .5, "center_y": .5}
         MDRaisedButton:
             id: getscenario
             name: 'getscenario'
             text: "Start Scenario"
+        MDLabel:
+            id: scenariolabel
+            text: ""
+        MDRaisedButton:
+            id: recordbutton
 
+<ResultsPage>:
+    name: 'results'
 
 '''
+
+class HomePage(Screen):
+    pass
+
+class TrainingPage(Screen):
+    pass
+
+class ResultsPage(Screen):
+    pass
+
+class WindowManager(ScreenManager):
+    pass
+
 
 class trainingApp(MDApp): #this is the main training app that is going to be downloaded into the user's phone
     #add code for training app here, free to change name
@@ -71,6 +105,7 @@ class trainingApp(MDApp): #this is the main training app that is going to be dow
         #layout = MDBoxLayout(orientation="vertical")
         self.theme_cls.material_style = "M3"
         self.theme_cls.theme_style = "Dark"
+        self.listen = False
         # self.image = Image()
 
         # layout.add_widget(self.image)
@@ -104,23 +139,42 @@ class trainingApp(MDApp): #this is the main training app that is going to be dow
 
 
     def recognizeSpeech(self, *args):
-        self.listen = True
-        print("Starting Recording")
-        recognizer = speech_recognition.Recognizer() #start recognizing speech
-        print("speak anything")
-        while self.listen:
-            with speech_recognition.Microphone() as mic:
-                recognizer.adjust_for_ambient_noise(mic,duration=1)
-                audio = recognizer.listen(mic)
-                text = recognizer.recognize_google(audio)
-                text = text.lower()
-                print(text)       
-    
+        if self.listen == False:
+            print("Starting Recording")
+            recognizer = speech_recognition.Recognizer() #start recognizing speech
+            print("speak anything")
+            self.listen = True
+            while True:
+                try:
+                    with speech_recognition.Microphone() as mic:
+                        recognizer.adjust_for_ambient_noise(mic,duration=1)
+                        audio = recognizer.listen(mic)
+                        text = recognizer.recognize_google(audio)
+                        text = text.lower()
+                        print(text)       
+                except speech_recognition.UnknownValueError():
+                    recognizer = speech_recognition.Recognizer()
+                    continue
+        
+        elif self.listen == True:
+            self.ids.recordbutton.text = ''
+            self.listen = False
 
     def stopSpeech(self):
         self.listen = False
-                
+
+    def getPrompt(self): #pull random scenario from dictionary
+        self.prompts = {
+            "I recently got a job offer for my dream job!"
+            :['admiration curiosity excitement joy caring','neutral'],
+            'My pet died yesterday.'
+            :['','']}
+        random_key = random.sample(prompts.keys(), 1)[0]
+        self.currentprompt = random_key
+        self.ids.scenariolabel.text = random_key
+        return random_key
     
+
     def startantispam(self): #this function starts the antispam and language corrector as a background service
         antispamservice = autoclass(SERVICE_NAME)
         mActivity = autoclass(u'org.kivy.android.PythonActivity').mActivity
