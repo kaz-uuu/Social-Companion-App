@@ -114,12 +114,12 @@ def train():
         
         if report:
             print('Classification Report')
-            return classification_report(y_test, y_pred), plt
+            return classification_report(y_test, y_pred)
 
     Y_pred = model.predict(X_test)
     y_pred = np.argmax(Y_pred, axis=1)
 
-    reportPic, heatmap = print_confusion_matrix(y_test, y_pred)
+    fullReport = print_confusion_matrix(y_test, y_pred)
 
     # %% [markdown]
     # # Convert to model for Tensorflow-Lite
@@ -162,7 +162,7 @@ def train():
     print(np.squeeze(tflite_results))
     print(np.argmax(np.squeeze(tflite_results)))
 
-    return reportPic, heatmap
+    return fullReport
 
 
 
