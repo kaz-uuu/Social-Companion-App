@@ -12,24 +12,19 @@ from kivy.graphics.texture import Texture
 from kivy.core.window import Window
 from kivymd.theming import ThemeManager
 from kivy.uix.screenmanager import ScreenManager, Screen
-#from transformers import RobertaTokenizerFast, TFRobertaForSequenceClassification, pipeline
+from transformers import RobertaTokenizerFast, TFRobertaForSequenceClassification, pipeline
+from multiprocessing import Process
 #from jnius import autoclass
 import random
 import speech_recognition
 import pyttsx3
+import threading
+import time
 import cv2 
 import os
 
-# os.environ["TOKENIZERS_PARALLELISM"] = "false"
+os.environ["TOKENIZERS_PARALLELISM"] = "false"
 
-# tokenizer = RobertaTokenizerFast.from_pretrained("arpanghoshal/EmoRoBERTa")
-# model = TFRobertaForSequenceClassification.from_pretrained("arpanghoshal/EmoRoBERTa")
-
-# emotion = pipeline('sentiment-analysis', 
-#                     model='arpanghoshal/EmoRoBERTa')
-
-# emotion_labels = emotion("oh im sorry to hear that")
-# print(emotion_labels)
 
 SERVICE_NAME = u'{packagename}.Service{servicename}'.format(
     packagename=u'org.kivy.android.antispamservice',
@@ -73,6 +68,7 @@ MDScreen:
         id: getscenario
         name: 'getscenario'
         text: "Start Scenario"
+        on_press: app.getPrompt()
     MDLabel:
         id: scenariolabel
         text: "Press the Start Scenario button to begin."
@@ -80,7 +76,7 @@ MDScreen:
     MDRaisedButton:
         id: recordbutton
         text: "Record Answer"
-        on_press: app.recognizeSpeech()
+        on_press: app.voice2text()
         pos_hint: {"center_x": .5, "center_y": .3}
 
 # <ResultsPage>:
@@ -106,6 +102,7 @@ class trainingApp(MDApp): #this is the main training app that is going to be dow
 
 
     def build(self):
+        self.thread = None
         self.fps_monitor_start()
         Window.size = (450,975)
         #layout = MDBoxLayout(orientation="vertical")
@@ -129,10 +126,12 @@ class trainingApp(MDApp): #this is the main training app that is going to be dow
     def startcam(self):
         self.image = Image()
         print("cam started")
-        self.capture = cv2.VideoCapture(1)
+        self.capture = cv2.VideoCapture(0)
         Clock.schedule_interval(self.load_video, 1.0/30.0)
         self.root.ids.layout.add_widget(self.image)
 
+    def load(self):
+        Clock.schedule_interval(self.load_video, 1.0/30.0)
 
     def load_video(self, *args):
         ret, frame = self.capture.read()
@@ -143,6 +142,14 @@ class trainingApp(MDApp): #this is the main training app that is going to be dow
         texture.blit_buffer(buffer, colorfmt='bgr',bufferfmt='ubyte')
         self.image.texture = texture
 
+    def voice2text(self):
+        if not self.thread:
+            print('[voice2text] starting thread')
+            self.thread = threading.Thread(target=self.recognizeSpeech)  # function's name without ()
+            self.thread.daemon = True  # kill thread at the end of program
+            self.thread.start()
+        else:
+            print('[voice2text] thread is already running')
 
     def recognizeSpeech(self, *args):
         if self.listen == False:
@@ -159,7 +166,7 @@ class trainingApp(MDApp): #this is the main training app that is going to be dow
                         text = recognizer.recognize_google(audio)
                         text = text.lower()
                         self.answer = self.answer + " " + text
-                        print(self.answer)       
+                        print(self.answer)
                 except speech_recognition.UnknownValueError:
                     recognizer = speech_recognition.Recognizer()
                     continue
@@ -175,24 +182,60 @@ class trainingApp(MDApp): #this is the main training app that is going to be dow
         self.prompts = {
             "I recently got a job offer for my dream job!"
             :['admiration curiosity excitement joy caring','neutral'],
-            'My pet died yesterday.'
-            :['','']}
-        random_key = random.sample(prompts.keys(), 1)[0]
+            "My pet died yesterday."
+            :['remorse caring surprise','neutral curiosity']
+            }
+        random_key = random.sample(self.prompts.keys(), 1)[0]
         self.currentprompt = random_key
-        self.ids.scenariolabel.text = random_key
+        print(self.prompts[self.currentprompt])
+        self.root.ids.scenariolabel.text = random_key
         return random_key
     
+    def gradePrompt(self):
+        good = False
+        okay = False  
+        bad = False
+        print(self.prompts[self.currentprompt])
+        goodans = self.prompts[self.currentprompt][0].split()
+        okans = self.prompts[self.currentprompt][1].split()
+        tokenizer = RobertaTokenizerFast.from_pretrained("arpanghoshal/EmoRoBERTa")
+        model = TFRobertaForSequenceClassification.from_pretrained("arpanghoshal/EmoRoBERTa")
+        
+        emotion = pipeline('sentiment-analysis',model='arpanghoshal/EmoRoBERTa')
 
-
+        emotion_labels = emotion(self.answer)
+        
+        print(emotion_labels)
+        
+        for i in goodans:
+            if i == emotion_labels:
+                good = True
+        if good != True:
+            for i in okans:
+                if i == emotion_labels:
+                    okay = True
+        elif okay != True:
+            bad = True
+        print(good + okay + bad)
+    
     def startantispam(self): #this function starts the antispam and language corrector as a background service
         antispamservice = autoclass(SERVICE_NAME)
         mActivity = autoclass(u'org.kivy.android.PythonActivity').mActivity
         antispamservice.start(mActivity,'')
         return antispamservice
 
+    def multi(self):
+        t1 = threading.Thread(target=self.load)
+        t2 = threading.Thread(target=self.recognizeSpeech)
+        t1.start()
+        t2.start()
+        t1.join()
+        t2.join()
     #mainsim.recognizeSpeech()
 
 if __name__=="__main__":
     app = trainingApp()
     app.run()
+
+
 
