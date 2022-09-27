@@ -33,68 +33,68 @@ SERVICE_NAME = u'{packagename}.Service{servicename}'.format(
 
 
 KV = '''
-# WindowManager:
-#     HomePage:
-#     TrainingPage:
-#     ResultsPage:
+WindowManager:
+    HomePage:
+    TrainingPage:
+    ResultsPage:
 
-# <HomePage>:
-#     name: 'home'
-#     MDRaisedButton:
-#         text: "Start Training Scenario"
-#         on_press: app.root.current = 'training'
-
-# <TrainingPage>:
-#     name: 'training'
-MDScreen:
-    id: mdscreen
-    BoxLayout:
-        id: layout
-        orientation: 'vertical'
-        adaptive_size: True
-
-    MDTopAppBar:
-        title: "Training Simulator"
-        pos_hint: {"center_y": 0.97}
+<HomePage>:
+    name: 'home'
     MDRaisedButton:
-        id: cambutton
-        name: 'cambutton'
-        text: "Start Camera"
-        on_press: app.startcam()
-        pos_hint: {"center_x": .5, "center_y": .5}
-        size: 100, 100
-        size_hint: None, None
-    MDRaisedButton:
-        id: getscenario
-        name: 'getscenario'
-        text: "Start Scenario"
-        on_press: app.getPrompt()
-    MDLabel:
-        id: scenariolabel
-        text: "Press the Start Scenario button to begin."
-        pos_hint: {"center_x": .5, "center_y": .7}
-    MDRaisedButton:
-        id: recordbutton
-        text: "Record Answer"
-        on_press: app.voice2text()
-        pos_hint: {"center_x": .5, "center_y": .3}
+        text: "Start Training Scenario"
+        on_press: app.root.current = 'training'
 
-# <ResultsPage>:
-#     name: 'results'
+<TrainingPage>:
+    name: 'training'
+    MDScreen:
+        id: mdscreen
+        BoxLayout:
+            id: layout
+            orientation: 'vertical'
+            adaptive_size: True
+
+        MDTopAppBar:
+            title: "Training Simulator"
+            pos_hint: {"center_y": 0.97}
+        MDRaisedButton:
+            id: cambutton
+            name: 'cambutton'
+            text: "Start Camera"
+            on_press: app.startcam()
+            pos_hint: {"center_x": .5, "center_y": .5}
+            size: 100, 100
+            size_hint: None, None
+        MDRaisedButton:
+            id: getscenario
+            name: 'getscenario'
+            text: "Start Scenario"
+            on_press: app.getPrompt()
+        MDLabel:
+            id: scenariolabel
+            text: "Press the Start Scenario button to begin."
+            pos_hint: {"center_x": .5, "center_y": .7}
+        MDRaisedButton:
+            id: recordbutton
+            text: "Record Answer"
+            on_press: app.voice2text()
+            pos_hint: {"center_x": .5, "center_y": .3}
+
+<ResultsPage>:
+    name: 'results'
 
 '''
 
-# class HomePage(Screen):
-#     pass
+class HomePage(Screen):
+    pass
 
-# class TrainingPage(Screen):
-#     pass
+class TrainingPage(Screen):
+    pass
 
-# class ResultsPage(Screen):
-#     pass
+class ResultsPage(Screen):
+    pass
 
-# class WindowManager(ScreenManager):
-#     pass
+class WindowManager(ScreenManager):
+    pass
 
 
 class trainingApp(MDApp): #this is the main training app that is going to be downloaded into the user's phone
@@ -128,7 +128,7 @@ class trainingApp(MDApp): #this is the main training app that is going to be dow
         print("cam started")
         self.capture = cv2.VideoCapture(0)
         Clock.schedule_interval(self.load_video, 1.0/30.0)
-        self.root.ids.layout.add_widget(self.image)
+        self.root.get_screen('training').ids.layout.add_widget(self.image)
 
     def load(self):
         Clock.schedule_interval(self.load_video, 1.0/30.0)
@@ -143,21 +143,25 @@ class trainingApp(MDApp): #this is the main training app that is going to be dow
         self.image.texture = texture
 
     def voice2text(self):
-        if not self.thread:
-            print('[voice2text] starting thread')
-            self.thread = threading.Thread(target=self.recognizeSpeech)  # function's name without ()
-            self.thread.daemon = True  # kill thread at the end of program
-            self.thread.start()
-        else:
-            print('[voice2text] thread is already running')
-
-    def recognizeSpeech(self, *args):
         if self.listen == False:
+            self.listen = True
+            if not self.thread:
+                print('[voice2text] starting thread')
+                self.thread = threading.Thread(target=self.recognizeSpeech)  # function's name without ()
+                self.thread.daemon = True  # kill thread at the end of program
+                self.thread.start()
+            else:
+                print('[voice2text] thread is already running')
+        elif self.listen == True:
+            print("recording stopped")
+            self.listen = False
+    
+    def recognizeSpeech(self, *args):
+        while self.listen == True:
             self.answer = ""
             print("Starting Recording")
             recognizer = speech_recognition.Recognizer() #start recognizing speech
             print("speak anything")
-            self.listen = True
             while True:
                 try:
                     with speech_recognition.Microphone() as mic:
@@ -170,10 +174,6 @@ class trainingApp(MDApp): #this is the main training app that is going to be dow
                 except speech_recognition.UnknownValueError:
                     recognizer = speech_recognition.Recognizer()
                     continue
-        
-        elif self.listen == True:
-            self.ids.recordbutton.text = ''
-            self.listen = False
 
     def stopSpeech(self):
         self.listen = False
@@ -188,7 +188,7 @@ class trainingApp(MDApp): #this is the main training app that is going to be dow
         random_key = random.sample(self.prompts.keys(), 1)[0]
         self.currentprompt = random_key
         print(self.prompts[self.currentprompt])
-        self.root.ids.scenariolabel.text = random_key
+        self.root.get_screen('training').ids.scenariolabel.text = random_key
         return random_key
     
     def gradePrompt(self):
@@ -224,13 +224,6 @@ class trainingApp(MDApp): #this is the main training app that is going to be dow
         antispamservice.start(mActivity,'')
         return antispamservice
 
-    def multi(self):
-        t1 = threading.Thread(target=self.load)
-        t2 = threading.Thread(target=self.recognizeSpeech)
-        t1.start()
-        t2.start()
-        t1.join()
-        t2.join()
     #mainsim.recognizeSpeech()
 
 if __name__=="__main__":
