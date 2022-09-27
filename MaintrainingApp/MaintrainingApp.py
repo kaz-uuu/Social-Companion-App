@@ -38,61 +38,67 @@ SERVICE_NAME = u'{packagename}.Service{servicename}'.format(
 
 
 KV = '''
-WindowManager:
-    HomePage:
-    TrainingPage:
-    ResultsPage:
+# WindowManager:
+#     HomePage:
+#     TrainingPage:
+#     ResultsPage:
 
-<HomePage>:
-    name: 'home'
+# <HomePage>:
+#     name: 'home'
+#     MDRaisedButton:
+#         text: "Start Training Scenario"
+#         on_press: app.root.current = 'training'
+
+# <TrainingPage>:
+#     name: 'training'
+MDScreen:
+    id: mdscreen
+    BoxLayout:
+        id: layout
+        orientation: 'vertical'
+        adaptive_size: True
+
+    MDTopAppBar:
+        title: "Training Simulator"
+        pos_hint: {"center_y": 0.97}
     MDRaisedButton:
-        text: "Start Training Scenario"
-        on_press: app.root.current = 'training'
+        id: cambutton
+        name: 'cambutton'
+        text: "Start Camera"
+        on_press: app.startcam()
+        pos_hint: {"center_x": .5, "center_y": .5}
+        size: 100, 100
+        size_hint: None, None
+    MDRaisedButton:
+        id: getscenario
+        name: 'getscenario'
+        text: "Start Scenario"
+    MDLabel:
+        id: scenariolabel
+        text: "Press the Start Scenario button to begin."
+        pos_hint: {"center_x": .5, "center_y": .7}
+    MDRaisedButton:
+        id: recordbutton
+        text: "Record Answer"
+        on_press: app.recognizeSpeech()
+        pos_hint: {"center_x": .5, "center_y": .3}
 
-<TrainingPage>:
-    name: 'training'
-    MDScreen:
-
-        BoxLayout:
-            id: layout
-            orientation: 'vertical'
-            adaptive_size: True
-
-        MDTopAppBar:
-            title: "This is an MDToolbar"
-            pos_hint: {"center_y": 0.9}
-        MDRaisedButton:
-            id: cambutton
-            name: 'cambutton'
-            text: "Start Camera"
-            on_press: app.startcam()
-            pos_hint: {"center_x": .5, "center_y": .5}
-        MDRaisedButton:
-            id: getscenario
-            name: 'getscenario'
-            text: "Start Scenario"
-        MDLabel:
-            id: scenariolabel
-            text: ""
-        MDRaisedButton:
-            id: recordbutton
-
-<ResultsPage>:
-    name: 'results'
+# <ResultsPage>:
+#     name: 'results'
 
 '''
 
-class HomePage(Screen):
-    pass
+# class HomePage(Screen):
+#     pass
 
-class TrainingPage(Screen):
-    pass
+# class TrainingPage(Screen):
+#     pass
 
-class ResultsPage(Screen):
-    pass
+# class ResultsPage(Screen):
+#     pass
 
-class WindowManager(ScreenManager):
-    pass
+# class WindowManager(ScreenManager):
+#     pass
 
 
 class trainingApp(MDApp): #this is the main training app that is going to be downloaded into the user's phone
@@ -140,6 +146,7 @@ class trainingApp(MDApp): #this is the main training app that is going to be dow
 
     def recognizeSpeech(self, *args):
         if self.listen == False:
+            self.answer = ""
             print("Starting Recording")
             recognizer = speech_recognition.Recognizer() #start recognizing speech
             print("speak anything")
@@ -151,8 +158,9 @@ class trainingApp(MDApp): #this is the main training app that is going to be dow
                         audio = recognizer.listen(mic)
                         text = recognizer.recognize_google(audio)
                         text = text.lower()
-                        print(text)       
-                except speech_recognition.UnknownValueError():
+                        self.answer = self.answer + " " + text
+                        print(self.answer)       
+                except speech_recognition.UnknownValueError:
                     recognizer = speech_recognition.Recognizer()
                     continue
         
@@ -174,6 +182,7 @@ class trainingApp(MDApp): #this is the main training app that is going to be dow
         self.ids.scenariolabel.text = random_key
         return random_key
     
+
 
     def startantispam(self): #this function starts the antispam and language corrector as a background service
         antispamservice = autoclass(SERVICE_NAME)
