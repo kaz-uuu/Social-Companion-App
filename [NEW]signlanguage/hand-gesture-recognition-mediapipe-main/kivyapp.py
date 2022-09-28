@@ -29,9 +29,9 @@ colors = {
         "A700": "#C25554",
     },
     "Light": {
-        "Background": "#F5F5F5",
-        "StatusBar": "f2eded",
-        "AppBar": "#f2eded",
+        "Background": "#FFFFFF",
+        "StatusBar": "FFFFFF",
+        "AppBar": "#F5F5F5",
     }
 }
 
@@ -42,11 +42,14 @@ MDScreen:
         #panel_color: "#eeeaea"
         selected_color_background: "lightgrey"
         text_color_active: "#6100FF"
-
         MDBottomNavigationItem:
             id: screen1
             name: 'screen1'
             text: 'Sign Language'
+            transition_direction: 'Left'
+            MDTopAppBar:
+                title: "Sign Language"
+                pos_hint: {"center_y": 0.97}
             MDBoxLayout:
                 orientation: "vertical"
                 pos_hint: {'center_y':0.1}
@@ -62,10 +65,14 @@ MDScreen:
             id: screen2
             name: 'screen2'
             text: 'Training Sign Language'
+            transition_direction: 'Right'
             MDLabel:
                 id: notification
                 pos_hint: {'center_y':0.5}
                 pos_hint: {'center_x':0.5} 
+            MDTopAppBar:
+                title: "Sign Language Trainer"
+                pos_hint: {"center_y": 0.97}
             MDBoxLayout:
                 id: box
                 orientation: "vertical"
@@ -91,9 +98,8 @@ MDScreen:
                     pos_hint: {'center_x':0.5}  
                 MDLabel:
                     id: label
-                    halign: 'center'
-                    valign: 'middle'    
-                    pos_hint: {'center_x':0.5}       
+                    halign: 'center'    
+                    pos_hint: {'center_x':0.5}   
 '''
 
 class myCam(MDApp):
