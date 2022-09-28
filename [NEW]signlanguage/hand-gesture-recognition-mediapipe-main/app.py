@@ -13,7 +13,6 @@ import mediapipe as mp
 
 from utils import CvFpsCalc
 from model import KeyPointClassifier
-import time
 # from model import PointHistoryClassifier
 
 

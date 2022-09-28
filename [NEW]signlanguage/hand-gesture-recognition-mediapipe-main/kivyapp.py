@@ -15,13 +15,33 @@ import cv2 as cv
 import app
 import keypoint
 
+
+colors = {
+    "Purple": {
+        "200": "#6100FF",
+        "500": "#6100FF",
+        "700": "#6100FF",
+    },
+    "Red": {
+        "200": "#C25554",
+        "500": "#C25554",
+        "700": "#C25554",
+        "A700": "#C25554",
+    },
+    "Light": {
+        "Background": "#f2eded",
+        "StatusBar": "f2eded",
+        "AppBar": "#F5F5F5"
+    }
+}
+
 # KV #####################################################
 KV = '''
 MDScreen:
     MDBottomNavigation:
         #panel_color: "#eeeaea"
-        selected_color_background: "orange"
-        text_color_active: "lightgrey"
+        selected_color_background: "lightgrey"
+        text_color_active: "#6100FF"
 
         MDBottomNavigationItem:
             id: screen1
@@ -29,6 +49,8 @@ MDScreen:
             text: 'Sign Language'
             MDBoxLayout:
                 orientation: "vertical"
+                pos_hint: {'center_y':0.1}
+                adaptive_height: True
                 MDRectangleFlatIconButton:
                     id: mdbu
                     text: "on/off camera"
@@ -78,12 +100,14 @@ class myCam(MDApp):
 
     # Initial Set-Up #####################################################
     def build(self):
+        self.theme_cls.colors = colors
+        self.theme_cls.primary_palette = "Purple"
         Window.size = (450,975)
         self.camera = 0
         self.key = 0
         self.layout = MDBoxLayout(orientation='vertical')
         self.theme_cls.material_style = "M3"
-        self.theme_cls.theme_style = "Dark"
+        self.theme_cls.theme_style = "Light"
         return Builder.load_string( KV ) 
 
     # Main Image Reconition #####################################################
