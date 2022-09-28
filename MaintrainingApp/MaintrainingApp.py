@@ -36,13 +36,22 @@ KV = '''
 WindowManager:
     HomePage:
     TrainingPage:
+    LoadingPage:
     ResultsPage:
 
 <HomePage>:
     name: 'home'
-    MDRaisedButton:
-        text: "Start Training Scenario"
-        on_press: app.root.current = 'training'
+    MDScreen:
+        MDRaisedButton:
+            text: "Start Training Scenario"
+            on_release: app.root.current = 'training'
+        MDLabel:
+            markup: True
+            font_size: 64
+            text: '[b][color=#6100ff]Friend[/color]ly[/b]'
+            pos_hint: {"center_x": 1, "center_y": .7}
+            theme_text_color: "Custom"
+            text_color: 97, 0, 255, 1
 
 <TrainingPage>:
     name: 'training'
@@ -60,9 +69,9 @@ WindowManager:
             id: cambutton
             name: 'cambutton'
             text: "Start Camera"
-            on_press: app.startcam()
+            on_release: app.startcam()
             pos_hint: {"center_x": .5, "center_y": .5}
-            size: 100, 100
+            size: 100, 14
             size_hint: None, None
         MDRaisedButton:
             id: getscenario
@@ -76,11 +85,29 @@ WindowManager:
         MDRaisedButton:
             id: recordbutton
             text: "Record Answer"
-            on_press: app.voice2text()
+            on_release: app.voice2text()
             pos_hint: {"center_x": .5, "center_y": .3}
 
+<LoadingPage>
+    name: 'loading'
+    MDScreen:
+        MDLabel:
+            markup: True
+            text: 'Loading Results...'
+            pos_hint: {'center_x': .5, 'center_y': .5}
 <ResultsPage>:
     name: 'results'
+    MDScreen:
+
+        MDRaisedButton:
+            id: nextscenario
+            text: "NEXT SCENARIO"
+        MDRaisedButton:
+            id: homebutton
+            text: "HOME PAGE"
+            size_hint: None, None
+            size: 200, 50
+            pos_hint: {"center_x": .5, "center_y": .2}
 
 '''
 
@@ -91,6 +118,9 @@ class TrainingPage(Screen):
     pass
 
 class ResultsPage(Screen):
+    pass
+
+class LoadingPage(Screen):
     pass
 
 class WindowManager(ScreenManager):
@@ -122,14 +152,13 @@ class trainingApp(MDApp): #this is the main training app that is going to be dow
         # self.capture = cv2.VideoCapture(1)
         # Clock.schedule_interval(self.load_video, 1.0/30.0)
         return Builder.load_string(KV)
-    
     def startcam(self):
         self.image = Image()
         print("cam started")
-        self.capture = cv2.VideoCapture(0)
+        self.capture = cv2.VideoCapture(1)
         Clock.schedule_interval(self.load_video, 1.0/30.0)
         self.root.get_screen('training').ids.layout.add_widget(self.image)
-
+        
     def load(self):
         Clock.schedule_interval(self.load_video, 1.0/30.0)
 
@@ -145,6 +174,7 @@ class trainingApp(MDApp): #this is the main training app that is going to be dow
     def voice2text(self):
         if self.listen == False:
             self.listen = True
+            self.root.get_screen('training').ids.recordbutton.text = 'Press to stop recording and submit response'
             if not self.thread:
                 print('[voice2text] starting thread')
                 self.thread = threading.Thread(target=self.recognizeSpeech)  # function's name without ()
@@ -152,17 +182,23 @@ class trainingApp(MDApp): #this is the main training app that is going to be dow
                 self.thread.start()
             else:
                 print('[voice2text] thread is already running')
-        elif self.listen == True:
-            print("recording stopped")
+        elif self.listen == True: #submitted response
+            print("Loading")
             self.listen = False
+            self.root.current = 'loading'
+            self.thread = None
+            self.loadingPage()
+
     
+
     def recognizeSpeech(self, *args):
         while self.listen == True:
             self.answer = ""
             print("Starting Recording")
             recognizer = speech_recognition.Recognizer() #start recognizing speech
             print("speak anything")
-            while True:
+            while self.listen:
+                print("listening...")
                 try:
                     with speech_recognition.Microphone() as mic:
                         recognizer.adjust_for_ambient_noise(mic,duration=1)
@@ -174,10 +210,18 @@ class trainingApp(MDApp): #this is the main training app that is going to be dow
                 except speech_recognition.UnknownValueError:
                     recognizer = speech_recognition.Recognizer()
                     continue
+            
 
-    def stopSpeech(self):
-        self.listen = False
-
+    def loadingPage(self):
+        if not self.thread:
+                print('[grapdePrompt] starting thread')
+                self.thread = threading.Thread(target=self.gradePrompt)  # function's name without ()
+                self.thread.daemon = True  # kill thread at the end of program
+                self.thread.start()
+        while True:
+            if self.finished_grading:
+                self.root.current = 'results'
+    
     def getPrompt(self): #pull random scenario from dictionary
         self.prompts = {
             "I recently got a job offer for my dream job!"
@@ -192,6 +236,7 @@ class trainingApp(MDApp): #this is the main training app that is going to be dow
         return random_key
     
     def gradePrompt(self):
+        self.finished_grading = False
         good = False
         okay = False  
         bad = False
@@ -216,8 +261,11 @@ class trainingApp(MDApp): #this is the main training app that is going to be dow
                     okay = True
         elif okay != True:
             bad = True
-        print(good + okay + bad)
-    
+        print(okay)
+
+        self.finished_grading = True  
+
+
     def startantispam(self): #this function starts the antispam and language corrector as a background service
         antispamservice = autoclass(SERVICE_NAME)
         mActivity = autoclass(u'org.kivy.android.PythonActivity').mActivity
