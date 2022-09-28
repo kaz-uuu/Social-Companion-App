@@ -46,9 +46,9 @@ colors = {
         "A700": "#C25554",
     },
     "Light": {
-        "Background": "#f2eded",
-        "StatusBar": "f2eded",
-        "AppBar": "#F5F5F5"
+        "Background": "#FFFFFF",
+        "StatusBar": "FFFFFF",
+        "AppBar": "#F5F5F5",
     }
 }
 
@@ -63,21 +63,21 @@ WindowManager:
     MDScreen:
         MDRaisedButton:
             markup: True
-            text: "Start Training Scenario"
-            on_release: app.root.current = 'training'
-            font_size:30
+            text: "[b]Start Training Scenario[/b]"
+            on_release: app.loadTrainingPage()
+            font_size:40
             size_hint: .7, .05
             pos_hint: {"center_x": .5, "center_y": .2}
         MDRaisedButton:
-            text: "Sign Language Translator"
-            font_size: 30
+            text: "[b]Sign Language Translator[/b]"
+            font_size: 40
             size_hint: .7, .05
             pos_hint: {"center_x": .5, "center_y": .13}
         MDLabel:
             markup: True
-            font_size: 64
+            font_size: 128
             text: '[b][color=#6100ff]Friend[/color]ly[/b]'
-            pos_hint: {"center_x": 1, "center_y": .7}
+            pos_hint: {"center_x": .8, "center_y": .8}
             theme_text_color: "Custom"
             text_color: 97, 0, 255, 1 
             
@@ -94,23 +94,17 @@ WindowManager:
         MDTopAppBar:
             title: "Training Simulator"
             pos_hint: {"center_y": 0.97}
-        MDRaisedButton:
-            id: cambutton
-            name: 'cambutton'
-            text: "Start Camera"
-            on_release: app.startcam()
-            pos_hint: {"center_x": .5, "center_y": .5}
-            size: 100, 14
-            size_hint: None, None
-        MDRaisedButton:
-            id: getscenario
-            name: 'getscenario'
-            text: "Start Scenario"
-            on_press: app.getPrompt()
+        MDLabel:
+            markup: True
+            text: "[b]Scenario: Come Up With A Suitable Response![/b]"
+            halign: 'center'
+            pos_hint: {"center_y": 0.8}
         MDLabel:
             id: scenariolabel
-            text: "Press the Start Scenario button to begin."
-            pos_hint: {"center_x": .5, "center_y": .7}
+            text: "Loading..."
+            font_size: 60
+            halign: 'center'
+            pos_hint: {"center_y": .7}
         MDRaisedButton:
             id: recordbutton
             text: "Record Answer"
@@ -120,25 +114,38 @@ WindowManager:
 <ResultsPage>:
     name: 'results'
     MDScreen:
+        MDTopAppBar:
+            markup: True
+            title: "[b]Results[/b]"
+            pos_hint: {'center_y': .97}
         MDLabel:
+            markup: True
             id: resultlabel
             text: "Loading..."
+            halign: 'center'
+            pos_hint: {'center_y': .6}
+            font_size: 64
+
         MDLabel:
             id: emotionlabel
             text: "Loading..."
+            halign: 'center'
+            pos_hint: {'center_y': .4}
+            font_size: 40
         MDRaisedButton:
             id: nextscenario
             text: "NEXT SCENARIO"
-            on_release: self.root.current = 'training'
-            size_hint: 10, 100
-            pos_hint: {"center_x": .5, "center_y": .4}
+            on_release: app.root.current = 'training'
+            size_hint: .7, .05
+            pos_hint: {"center_x": .5, "center_y": .2}
         MDRaisedButton:
             id: homebutton
             text: "HOME PAGE"
-            on_release: self.root.current = 'home'
-            size_hint: 10, 100
+            on_release: app.root.current = 'home'
             pos_hint: {"center_x": .5, "center_y": .2}
-
+            font_size:40
+            size_hint: .7, .05
+            pos_hint: {"center_x": .5, "center_y": .13}
 '''
 
 class HomePage(Screen):
@@ -161,6 +168,8 @@ class trainingApp(MDApp): #this is the main training app that is going to be dow
     def build(self):
         self.theme_cls.colors = colors
         self.theme_cls.primary_palette = "Purple"
+        self.theme_cls.material_style = "M3"
+        self.theme_cls.theme_style = "Light"
         self.thread = None
         self.fps_monitor_start()
         Window.size = (450,975)
@@ -179,6 +188,12 @@ class trainingApp(MDApp): #this is the main training app that is going to be dow
         # self.capture = cv2.VideoCapture(1)
         # Clock.schedule_interval(self.load_video, 1.0/30.0)
         return Builder.load_string(KV)
+    
+    def loadTrainingPage(self):
+        self.root.current = 'training'
+        self.getPrompt()
+        self.startcam()
+
     def startcam(self):
         self.image = Image()
         print("cam started")
@@ -213,7 +228,6 @@ class trainingApp(MDApp): #this is the main training app that is going to be dow
         elif self.listen == True: #submitted response
             print("Loading")
             self.listen = False
-            self.root.current = 'loading'
             self.thread = None
             self.loadResults()
 
@@ -245,13 +259,16 @@ class trainingApp(MDApp): #this is the main training app that is going to be dow
         self.thread.daemon = True  # kill thread at the end of program
         self.thread.start()
         self.root.current = 'results'
+        print("10")
+        print("done")
+        self.thread.join()
         self.root.get_screen('results').ids.resultlabel.text = self.result
-        self.root.get_screen('results').ids.emotionlabel.text = self.emotion
+        self.root.get_screen('results').ids.emotionlabel.text = "Emotion Detected: " + self.emotion
     
     def getPrompt(self): #pull random scenario from dictionary
         self.prompts = {
             "I recently got a job offer for my dream job!"
-            :['admiration curiosity excitement joy caring','neutral'],
+            :['admiration curiosity excitement joy caring optimism hopeful','neutral'],
             "My pet died yesterday."
             :['remorse caring surprise','neutral curiosity']
             }
@@ -283,16 +300,14 @@ class trainingApp(MDApp): #this is the main training app that is going to be dow
 
         print(self.emotion)
 
-        if emotion in goodans:
-            good = True
-            self.result = 'Great Answer!'
-        elif emotion in okans:
-            okay = True
-            self.result = 'Not Bad, Still Room To Improve!'
+        if self.emotion in goodans:
+            self.result = '[b]Great Answer![/b]'
+        elif self.emotion in okans:
+            self.result = '[b]Not Bad, Still Room To Improve![/b]'
         else:
-            bad = True
-            self.result = 'Needs Work!'
+            self.result = '[b]Needs Work![/b]'
         
+    
 
     # def startantispam(self): #this function starts the antispam and language corrector as a background service
     #     antispamservice = autoclass(SERVICE_NAME)
