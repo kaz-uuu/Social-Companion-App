@@ -114,6 +114,7 @@ class myCam(MDApp):
     def main(self):
         # On #####################################################
         if self.camera == 0:
+            self.training()
             self.image = Image()
             self.use_brect, self.hands, self.keypoint_classifier, self.cvFpsCalc, self.point_history, self.finger_gesture_history, self.keypoint_classifier_labels, self.cap = app.main()
             self.number = None
@@ -179,10 +180,11 @@ class myCam(MDApp):
     @delayable
     def training(self, *args):
         yield 1 
-        report = keypoint.train()
+        report = "hi"#keypoint.train()
         popup = Popup(title='Results',
                 content=MDLabel(text=str(report)),
-                size_hint=(None, None), size=(800, 1400))
+                size_hint=(None, None), size=(800, 1400),
+                background = 'atlas://data/images/defaulttheme/bubble_btn')
         self.root.ids.notification.text = ""
         popup.open()
 
