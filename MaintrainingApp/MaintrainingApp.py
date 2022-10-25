@@ -252,15 +252,6 @@ class trainingApp(MDApp): #this is the main training app that is going to be dow
         Clock.schedule_interval(self.loadVideo, 1.0/30.0)
         self.root.get_screen('training').ids.layout.add_widget(self.image)
         self.startedcam = True
-        
-    def load_video(self, *args):
-        ret, frame = self.capture.read()
-        #load frame
-        self.image_frame = frame
-        buffer = cv2.flip(frame,0).tostring()
-        texture = Texture.create(size=(frame.shape[1],frame.shape[0]), colorfmt='bgr')
-        texture.blit_buffer(buffer, colorfmt='bgr',bufferfmt='ubyte')
-        self.image.texture = texture
 
     def loadVideo(self, *args):
         ret, test_img = self.capture.read()  # captures frame and returns boolean value and captured image
@@ -349,7 +340,7 @@ class trainingApp(MDApp): #this is the main training app that is going to be dow
             "My pet died yesterday."
             :['remorse caring surprise','neutral curiosity'],
             "I am going to Australia for a two week holiday!"
-            :['caring curiousity optimism admiration approval','desire']
+            :['caring curiousity optimism admiration approval amusement','desire']
             }
         random_key = random.sample(self.prompts.keys(), 1)[0]
         self.currentprompt = random_key
