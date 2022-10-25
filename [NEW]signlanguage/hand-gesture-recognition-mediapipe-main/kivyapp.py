@@ -1,13 +1,13 @@
 # Importing Kivy Packages #####################################################
 from kivy.lang import Builder
 from kivymd.app import MDApp
-from kivymd.uix.boxlayout import MDBoxLayout
+from kivymd.uix.boxlayout import MDBoxLayout #pip install kivymd
 from kivymd.uix.label import MDLabel
 from kivy.uix.popup import Popup
 from kivy.uix.image import Image
-from kivy.clock import Clock
-from kivy.core.window import Window
-from kivyoav.delayed import delayable
+from kivy.clock import Clock 
+from kivy.core.window import Window #pip install kivy
+from kivyoav.delayed import delayable #pip install kivyoav
 from kivy.graphics.texture import Texture
 
 # Importing Packages #####################################################

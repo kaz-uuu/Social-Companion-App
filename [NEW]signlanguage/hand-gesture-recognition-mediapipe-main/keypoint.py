@@ -1,10 +1,10 @@
 def train():
         # %%
-    import csv
+    import csv #alr installed
 
-    import numpy as np
-    import tensorflow as tf
-    from sklearn.model_selection import train_test_split
+    import numpy as np #alr installed
+    import tensorflow as tf #pip install tensorflow
+    from sklearn.model_selection import train_test_split #pip install scikit-learn
 
     RANDOM_SEED = 42
 
@@ -96,9 +96,9 @@ def train():
     # # Confusion matrix
 
     # %%
-    import pandas as pd
-    import seaborn as sns
-    import matplotlib.pyplot as plt
+    import pandas as pd #pip install pandas
+    import seaborn as sns #pip install seaborn
+    import matplotlib.pyplot as plt #pip install matplotlib
     from sklearn.metrics import confusion_matrix, classification_report
 
     def print_confusion_matrix(y_true, y_pred, report=True):
