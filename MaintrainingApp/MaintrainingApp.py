@@ -331,15 +331,18 @@ class trainingApp(MDApp):
             self.root.get_screen('results').ids.emotionlabel.text = "Emotion Detected: " + self.emotion
     
     def getPrompt(self): #pull random scenario from dictionary
+        print("getPrompt called")
         self.prompts = {
             "I recently got a job offer for my dream job!"
             :['admiration curiosity excitement joy caring optimism hopeful','neutral'],
             "My pet died yesterday."
-            :['remorse caring surprise','neutral curiosity'],
+            :['remorse caring surprise grief','neutral curiosity'],
             "I am going to Australia for a two week holiday!"
             :['caring curiousity optimism admiration approval amusement','desire']
             }
+        print("generating random key............")
         random_key = random.sample(self.prompts.keys(), 1)[0]
+        print(random_key)
         self.currentprompt = random_key
         print(self.prompts[self.currentprompt])
         self.root.get_screen('training').ids.scenariolabel.text = random_key
