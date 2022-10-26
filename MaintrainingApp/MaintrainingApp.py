@@ -35,20 +35,19 @@ from keras.models import load_model
 from tensorflow.keras.utils import load_img, img_to_array
 
 
-##/ PACKAGE CONFIGURATIONS /###################################################
+##/ PACKAGE CONFIGURATIONS /#####################################################
 warnings.filterwarnings("ignore")
 os.environ["TOKENIZERS_PARALLELISM"] = "false"
 model = load_model("/Users/jerde/Downloads/Emotion-detection-main/best_model.h5")
 face_haar_cascade = cv2.CascadeClassifier(cv2.data.haarcascades + 'haarcascade_frontalface_default.xml')
 
-
-SERVICE_NAME = u'{packagename}.Service{servicename}'.format(
-    packagename=u'org.kivy.android.antispamservice',
-    servicename=u'antispam'
-)
-
+#SERVICE_NAME = u'{packagename}.Service{servicename}'.format(
+#    packagename=u'org.kivy.android.antispamservice',
+#    servicename=u'antispam'
+#)
 
 
+##/ COLORS USED BY KIVY /#############################################################
 colors = {
     "Purple": {
         "200": "#650DF2",
@@ -68,6 +67,7 @@ colors = {
     }
 }
 
+##/ KIVY UI CODE /#############################################################
 KV = '''
 WindowManager:
     HomePage:
@@ -118,8 +118,6 @@ WindowManager:
         MDSwitch:
             pos_hint: {'center_y': .1}
             on_active: app.antispam()
-
-
 
 <TrainingPage>:
     name: 'training'
@@ -197,6 +195,7 @@ WindowManager:
             pos_hint: {"center_x": .5, "center_y": .13}
 '''
 
+
 class HomePage(Screen):
     pass
 
@@ -209,12 +208,10 @@ class ResultsPage(Screen):
 class WindowManager(ScreenManager):
     pass
 
+##/ MAIN CLASS /#############################################################
+class trainingApp(MDApp): 
 
-class trainingApp(MDApp): #this is the main training app that is going to be downloaded into the user's phone
-    #add code for training app here, free to change name
-
-
-    def build(self):
+    def build(self): ## Intialize color themes and variables
         self.theme_cls.colors = colors
         self.theme_cls.primary_palette = "Purple"
         self.theme_cls.material_style = "M3"
@@ -237,9 +234,9 @@ class trainingApp(MDApp): #this is the main training app that is going to be dow
 
         # self.capture = cv2.VideoCapture(1)
         # Clock.schedule_interval(self.load_video, 1.0/30.0)
-        return Builder.load_string(KV)
+        return Builder.load_string(KV) # load kivy UI
     
-    def loadTrainingPage(self):
+    def loadTrainingPage(self): #
         self.root.current = 'training'
         self.getPrompt()
         if self.startedcam == False:
@@ -249,11 +246,11 @@ class trainingApp(MDApp): #this is the main training app that is going to be dow
         self.image = Image()
         print("cam started")
         self.capture = cv2.VideoCapture(1)
-        Clock.schedule_interval(self.loadVideo, 1.0/30.0)
+        Clock.schedule_interval(self.loadVideo, 1.0/30.0) #load camera view at 30 frames per second
         self.root.get_screen('training').ids.layout.add_widget(self.image)
         self.startedcam = True
 
-    def loadVideo(self, *args):
+    def loadVideo(self, *args): #load frame
         ret, test_img = self.capture.read()  # captures frame and returns boolean value and captured image
     
         gray_img = cv2.cvtColor(test_img, cv2.COLOR_BGR2RGB)
@@ -279,13 +276,13 @@ class trainingApp(MDApp): #this is the main training app that is going to be dow
         texture.blit_buffer(buffer, colorfmt='bgr',bufferfmt='ubyte')
         self.image.texture = texture
 
-    def voice2text(self):
+    def voice2text(self): #making the record response button toggleable 
         if self.toggle == False:
             self.toggle = True
             self.listen = True
             self.root.get_screen('training').ids.recordbutton.text = 'Press to stop recording and submit response'
             print('[voice2text] starting thread')
-            self.thread = threading.Thread(target=self.recognizeSpeech)  # function's name without ()
+            self.thread = threading.Thread(target=self.recognizeSpeech)  # create a thread to run two functions at once
             self.thread.daemon = True  # kill thread at the end of program
             self.thread.start()
         elif self.listen == True: #submitted response
