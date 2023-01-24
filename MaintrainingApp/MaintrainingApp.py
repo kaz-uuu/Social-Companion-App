@@ -27,7 +27,6 @@ from kivymd.uix.button import MDFlatButton
 
 ##/ EMOTION RECOGNITION PACKAGES /################################################
 from transformers import RobertaTokenizerFast, TFRobertaForSequenceClassification, pipeline
-from multiprocessing import Process
 import speech_recognition
 import pyttsx3
 import tensorflow
@@ -35,7 +34,7 @@ from keras.models import load_model
 from tensorflow.keras.utils import load_img, img_to_array
 
 
-##/ PACKAGE CONFIGURATIONS /#####################################################
+##/ PACKAGE CONFIGURATION /#####################################################
 warnings.filterwarnings("ignore")
 os.environ["TOKENIZERS_PARALLELISM"] = "false"
 model = load_model("/Users/jerde/Downloads/Emotion-detection-main/best_model.h5")
@@ -73,6 +72,7 @@ WindowManager:
     HomePage:
     TrainingPage:
     ResultsPage:
+    LoadingPage:
 
 <HomePage>:
     name: 'home'
@@ -151,6 +151,16 @@ WindowManager:
             on_release: app.voice2text()
             pos_hint: {"center_x": .5, "center_y": .3}
             font_name: 'gothmedium'
+        MDTextField:
+            required: True
+            multiline: True
+            halign: 'center'
+            pos_hint: {"center_y": 0.2}
+            mode: "fill"
+            fill_color: 0, 0, 0, .4
+            text: "Record answer to show words recognized."
+
+
 
 <ResultsPage>:
     name: 'results'
@@ -181,7 +191,7 @@ WindowManager:
             text: "Next Scenario"
             font_name: 'gothmedium'
             font_size: 40
-            on_release: app.root.current = 'training'
+            on_release: app.loadTrainingPage()
             size_hint: .7, .05
             pos_hint: {"center_x": .5, "center_y": .2}
         MDRaisedButton:
@@ -193,6 +203,9 @@ WindowManager:
             font_size:40
             size_hint: .7, .05
             pos_hint: {"center_x": .5, "center_y": .13}
+
+<LoadingPage>:
+            
 '''
 
 
@@ -205,13 +218,26 @@ class TrainingPage(Screen):
 class ResultsPage(Screen):
     pass
 
+class LoadingPage(Screen):
+    pass
+
 class WindowManager(ScreenManager):
     pass
+
+##/ PROMPT DATABASE /########################################################
+prompts = { #prompt format: "prompt":['good emotions','okay emotions']
+            "I recently got a job offer for my dream job!"
+            :['admiration curiosity excitement joy caring optimism hopeful','neutral'],
+            "My pet died yesterday."
+            :['remorse caring surprise grief','neutral curiosity'],
+            "I am going to Australia for a two week holiday!"
+            :['caring curiousity optimism admiration approval amusement','desire']
+            }
 
 ##/ MAIN CLASS /#############################################################
 class trainingApp(MDApp): 
 
-    def build(self): ## Intialize color themes and variables
+    def build(self): #intialize color themes and variables
         self.theme_cls.colors = colors
         self.theme_cls.primary_palette = "Purple"
         self.theme_cls.material_style = "M3"
@@ -219,45 +245,33 @@ class trainingApp(MDApp):
         self.firsttimeantispam = False
         self.thread = None
         self.startedcam = False
-        Window.size = (450,975)
+        Window.size = (450,975) #set window size
         self.toggle = False
         self.listen = False
-        # self.image = Image()
-
-        # layout.add_widget(self.image)
-        # self.startListeningButton = MDRaisedButton(
-        #     text="Click Here",
-        #     pos_hint={'center_x': .5, 'center_y': .5},
-        #     size_hint=(None,None))
-        # self.startListeningButton.bind(on_press=self.recognizeSpeech)
-        # layout.add_widget(self.startListeningButton)
-
-        # self.capture = cv2.VideoCapture(1)
-        # Clock.schedule_interval(self.load_video, 1.0/30.0)
-        return Builder.load_string(KV) # load kivy UI
+        return Builder.load_string(KV) #load kivy UI
     
-    def loadTrainingPage(self): #
-        self.root.current = 'training'
-        self.getPrompt()
-        if self.startedcam == False:
+    def loadTrainingPage(self): #load training page and camera
+        self.root.current = 'training' #change page to training
+        self.getPrompt() #retrieve a random prompt
+        if self.startedcam == False: #check if camera has been started already
             self.startcam()
 
-    def startcam(self):
-        self.image = Image()
-        print("cam started")
-        self.capture = cv2.VideoCapture(1)
+    def startcam(self): #Load Camera
+        self.image = Image() #Initialize image
+        print("cam started") 
+        self.capture = cv2.VideoCapture(1) #select camera input
         Clock.schedule_interval(self.loadVideo, 1.0/30.0) #load camera view at 30 frames per second
-        self.root.get_screen('training').ids.layout.add_widget(self.image)
-        self.startedcam = True
+        self.root.get_screen('training').ids.layout.add_widget(self.image) #add image view to training page
+        self.startedcam = True 
 
     def loadVideo(self, *args): #load frame
         ret, test_img = self.capture.read()  # captures frame and returns boolean value and captured image
     
-        gray_img = cv2.cvtColor(test_img, cv2.COLOR_BGR2RGB)
+        gray_img = cv2.cvtColor(test_img, cv2.COLOR_BGR2RGB) 
 
         faces_detected = face_haar_cascade.detectMultiScale(gray_img, 1.32, 5)
 
-        for (x, y, w, h) in faces_detected:
+        for (x, y, w, h) in faces_detected: #finds face and puts emotion label
             cv2.rectangle(test_img, (x, y), (x + w, y + h), (255, 0, 0), thickness=7)
             roi_gray = gray_img[y:y + w, x:x + h]  # cropping region of interest i.e. face area from  image
             roi_gray = cv2.resize(roi_gray, (224, 224))
@@ -283,7 +297,6 @@ class trainingApp(MDApp):
             self.root.get_screen('training').ids.recordbutton.text = 'Press to stop recording and submit response'
             print('[voice2text] starting thread')
             self.thread = threading.Thread(target=self.recognizeSpeech)  # create a thread to run two functions at once
-            self.thread.daemon = True  # kill thread at the end of program
             self.thread.start()
         elif self.listen == True: #submitted response
             print("Loading")
@@ -313,11 +326,11 @@ class trainingApp(MDApp):
                 except speech_recognition.UnknownValueError:
                     recognizer = speech_recognition.Recognizer()
                     continue
+        print("--- Thread Ended --------------------------")
 
     def loadResults(self):
-        print('[gradePrompt] starting thread')
+        print('[gradePrompt] starting tehread')
         self.thread = threading.Thread(target=self.gradePrompt)  # function's name without ()
-        self.thread.daemon = True  # kill thread at the end of program
         self.thread.start()
         self.root.current = 'results'
         print("10")
@@ -332,19 +345,11 @@ class trainingApp(MDApp):
     
     def getPrompt(self): #pull random scenario from dictionary
         print("getPrompt called")
-        self.prompts = {
-            "I recently got a job offer for my dream job!"
-            :['admiration curiosity excitement joy caring optimism hopeful','neutral'],
-            "My pet died yesterday."
-            :['remorse caring surprise grief','neutral curiosity'],
-            "I am going to Australia for a two week holiday!"
-            :['caring curiousity optimism admiration approval amusement','desire']
-            }
         print("generating random key............")
-        random_key = random.sample(self.prompts.keys(), 1)[0]
+        random_key = random.sample(prompts.keys(), 1)[0]
         print(random_key)
         self.currentprompt = random_key
-        print(self.prompts[self.currentprompt])
+        print(prompts[self.currentprompt])
         self.root.get_screen('training').ids.scenariolabel.text = random_key
         return random_key
     
@@ -352,9 +357,9 @@ class trainingApp(MDApp):
         good = False
         okay = False  
         bad = False
-        print(self.prompts[self.currentprompt])
-        goodans = self.prompts[self.currentprompt][0].split()
-        okans = self.prompts[self.currentprompt][1].split()
+        print(prompts[self.currentprompt])
+        goodans = prompts[self.currentprompt][0].split()
+        okans = prompts[self.currentprompt][1].split()
         print(goodans)
         print(okans)
         tokenizer = RobertaTokenizerFast.from_pretrained("arpanghoshal/EmoRoBERTa")
