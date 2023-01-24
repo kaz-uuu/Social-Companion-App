@@ -38,11 +38,10 @@ def get_args():
     return args
 
 
-def main():
+def main(): #Initialising of camera
     # Argument parsing #################################################################
     args = get_args()
 
-    cap_device = args.device
     cap_width = args.width
     cap_height = args.height
 

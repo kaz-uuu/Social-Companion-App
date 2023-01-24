@@ -35,7 +35,7 @@ colors = {
     }
 }
 
-# KV #####################################################
+# KV UI CODE #####################################################
 KV = '''
 MDScreen:
     MDBottomNavigation:
@@ -106,36 +106,37 @@ class myCam(MDApp):
 
     # Initial Set-Up #####################################################
     def build(self):
-        self.theme_cls.colors = colors
-        self.theme_cls.primary_palette = "Purple"
-        Window.size = (450,975)
+        self.theme_cls.colors = colors # Set-up colour and other variables
+        self.theme_cls.primary_palette = "Purple" 
+        Window.size = (450,975) # Set-up of window aspect ratio
         self.camera = 0
-        self.key = 0
-        self.layout = MDBoxLayout(orientation='vertical')
-        self.theme_cls.material_style = "M3"
-        self.theme_cls.theme_style = "Light"
-        return Builder.load_string( KV ) 
+        self.key = 0  
+        self.layout = MDBoxLayout(orientation='vertical') 
+        self.theme_cls.material_style = "M3" 
+        self.theme_cls.theme_style = "Light" 
+        return Builder.load_string( KV ) # Load kivy UI
 
     # Main Image Reconition #####################################################
     def main(self):
-        # On #####################################################
+        # When Camera On #####################################################
         if self.camera == 0:
-            self.image = Image()
+            self.image = Image() #Get image
+            # going to app.py for the function main(), which initialises variables to open camera
             self.use_brect, self.hands, self.keypoint_classifier, self.cvFpsCalc, self.point_history, self.finger_gesture_history, self.keypoint_classifier_labels, self.cap = app.main()
-            self.number = None
+            self.number = None 
             self.data = None
             self.mode = 0
-            self.root.ids.screen1.add_widget(self.image)
-            Clock.schedule_interval(self.load_video, 1.0/33.0)
+            self.root.ids.screen1.add_widget(self.image) #adding image widget
+            Clock.schedule_interval(self.load_video, 1.0/33.0) #scheduling image widget to be updated every 1.0/33.0 seconds
             self.camera = 1
-        # Off #####################################################
+        # When Camera Off #####################################################
         elif self.camera == 1:
             self.camera = 0
             self.key = 1
-            Clock.unschedule(self.load_video)
-            Clock.schedule_once(self.load_video, -1)
+            Clock.unschedule(self.load_video) #stop updating image widget
+            Clock.schedule_once(self.load_video, -1) #update image widget one last time before next frame
             Clock.schedule_once(self.keyReseter)
-            self.root.ids.screen1.remove_widget(self.image)
+            self.root.ids.screen1.remove_widget(self.image) #remove widget image
 
     # Training SL Model #####################################################
     def train(self):
@@ -159,14 +160,14 @@ class myCam(MDApp):
                 self.image = Image()
                 self.use_brect, self.hands, self.keypoint_classifier, self.cvFpsCalc, self.point_history, self.finger_gesture_history, self.keypoint_classifier_labels, self.cap = app.main()
                 self.number = slot
-                self.mode = 1
+                self.mode = 1 #new data mode
                 self.data = 0
-                self.root.ids.screen2.add_widget(self.image)
-                Clock.schedule_interval(self.load_video, 1.0/10.0)
+                self.root.ids.screen2.add_widget(self.image) #adding widget
+                Clock.schedule_interval(self.load_video, 1.0/10.0) #updating image widget per 1.0/10.0seconds (slower than previously to save procesing power)
                 self.camera = 1
             else:
-                self.root.ids.name.error = True
-                self.root.ids.slot.error = True
+                self.root.ids.name.error = True #invalid input, error = true
+                self.root.ids.slot.error = True 
 
         
         elif self.camera == 1:
@@ -177,7 +178,7 @@ class myCam(MDApp):
             Clock.schedule_once(self.load_video, -1)
             self.root.ids.screen2.remove_widget(self.image)
             Clock.schedule_once(self.keyReseter)
-            self.root.ids.notification.text = "Training in Progress!\nPlease do not switch off the app\nETA: 30s"
+            self.root.ids.notification.text = "Training in Progress!\nPlease do not switch off the app\nEstimated time taken: 30s"
             # Train!! #####################################################
             self.training()
             
@@ -185,21 +186,23 @@ class myCam(MDApp):
     @delayable
     def training(self, *args):
         yield 1 
-        report = keypoint.train()
+        report = keypoint.train() #goes to keypoint.py for train() function to train ml model, returns report with accuracy, precision ect. ect.
+        #UI for popup
         popup = Popup(title='Results',
                 content=MDLabel(text=str(report),halign="center",
                     theme_text_color="Error",),
                 size_hint=(None, None), size=(800, 1400))
         self.root.ids.notification.text = ""
-        popup.open()
+        popup.open() #Open pop-up
 
     def keyReseter(self, *args):
         self.key = 0
 
     def load_video(self, *args):
+        #after initialisation in line 125, it uses the variables to go to app.py's loading() function to edit current image, and returns edited image
         img, self.data = app.loading(self.mode, self.use_brect, self.hands, self.keypoint_classifier, self.cvFpsCalc, self.point_history, self.finger_gesture_history, self.keypoint_classifier_labels, self.cap, self.number, self.key, self.data)
-        buffer = cv.flip(img,0).tostring()
-        texture1 = Texture.create(size=(img.shape[1],img.shape[0]), colorfmt='bgr')
+        buffer = cv.flip(img,0).tostring() 
+        texture1 = Texture.create(size=(img.shape[1],img.shape[0]), colorfmt='bgr') # translating returned edited image to KIVY UI's texture
         texture1.blit_buffer(buffer, colorfmt='bgr',bufferfmt='ubyte')
         self.image.texture = texture1
         self.root.ids.label.text = "Number of data collected: {}".format(str(self.data))
