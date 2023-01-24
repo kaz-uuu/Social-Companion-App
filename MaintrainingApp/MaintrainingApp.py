@@ -32,7 +32,7 @@ import speech_recognition
 import pyttsx3
 import tensorflow
 from keras.models import load_model
-from tensorflow.keras.utils import load_img, img_to_array
+from keras.utils import load_img, img_to_array
 
 
 ##/ PACKAGE CONFIGURATIONS /#####################################################

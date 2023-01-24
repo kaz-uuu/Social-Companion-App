@@ -15,8 +15,9 @@ This repository contains the following contents.
 
 # Requirements (please install the following before running any programs)
 * pip3 install pyttsx3
-* pip3 install speech_recognition
+* pip3 install SpeechRecognition
 * pip3 install tensorflow
+* pip3 install keras-utils
 * pip3 install transformers
 * pip3 install opencv-python
 * pip3 install kivymd
