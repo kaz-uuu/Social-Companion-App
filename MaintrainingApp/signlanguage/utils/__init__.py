@@ -1,1 +1,1 @@
-from utils.cvfpscalc import CvFpsCalc
+from signlanguage.utils.cvfpscalc import CvFpsCalc

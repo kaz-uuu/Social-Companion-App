@@ -11,8 +11,8 @@ import cv2 as cv #pip install opencv-python
 import numpy as np #pip install numpy
 import mediapipe as mp #pip install mediapipe
 
-from utils.cvfpscalc import CvFpsCalc
-from model.keypoint_classifier.keypoint_classifier import KeyPointClassifier
+from signlanguage.utils.cvfpscalc import CvFpsCalc
+from signlanguage.model.keypoint_classifier.keypoint_classifier import KeyPointClassifier
 # from model import PointHistoryClassifier
 
 
@@ -70,7 +70,7 @@ def main(): #Initialising of camera
     # point_history_classifier = PointHistoryClassifier()
 
     # Read labels ###########################################################
-    with open('model/keypoint_classifier/keypoint_classifier_label.csv',
+    with open('signlanguage/model/keypoint_classifier/keypoint_classifier_label.csv',
               encoding='utf-8-sig') as f:
         keypoint_classifier_labels = csv.reader(f)
         keypoint_classifier_labels = [
