@@ -37,8 +37,8 @@ from keras.models import load_model
 from keras.utils import load_img, img_to_array
 
 ##/ SIGN LANGUAGES CODE /################################################
-import signlanguage.handGestureRecognitionMediapipeMain.app as app
-import signlanguage.handGestureRecognitionMediapipeMain.keypoint as keypoint
+import signlanguage.app as app
+import signlanguage.keypoint as keypoint
 
 
 ##/ PACKAGE CONFIGURATION /#####################################################
@@ -504,13 +504,17 @@ class trainingApp(MDApp):
         if self.camera == 0:
             self.image = Image() #Get image
             # going to app.py for the function main(), which initialises variables to open camera
+            print("1")
             self.use_brect, self.hands, self.keypoint_classifier, self.cvFpsCalc, self.point_history, self.finger_gesture_history, self.keypoint_classifier_labels, self.cap = app.main()
+            print("2")
             self.number = None 
             self.data = None
             self.mode = 0
+            print("2")
             self.root.ids.screen1.add_widget(self.image) #adding image widget
             Clock.schedule_interval(self.load_video, 1.0/33.0) #scheduling image widget to be updated every 1.0/33.0 seconds
             self.camera = 1
+            print("3")
         # When Camera Off #####################################################
         elif self.camera == 1:
             self.camera = 0
