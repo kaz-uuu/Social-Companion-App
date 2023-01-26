@@ -11,8 +11,8 @@ import cv2 as cv #pip install opencv-python
 import numpy as np #pip install numpy
 import mediapipe as mp #pip install mediapipe
 
-from utils import CvFpsCalc
-from model import KeyPointClassifier 
+from signlanguage.handGestureRecognitionMediapipeMain.utils import CvFpsCalc
+from signlanguage.handGestureRecognitionMediapipeMain.model import KeyPointClassifier 
 # from model import PointHistoryClassifier
 
 
