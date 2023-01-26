@@ -39,6 +39,7 @@ def get_args():
 
 
 def main(): #Initialising of camera
+    print("b")
     # Argument parsing #################################################################
     args = get_args()
 
@@ -50,12 +51,14 @@ def main(): #Initialising of camera
     min_tracking_confidence = args.min_tracking_confidence
 
     use_brect = True
+    print("c")
 
     # Camera preparation ###############################################################
     cap = cv.VideoCapture(0)
     cap.set(cv.CAP_PROP_FRAME_WIDTH, cap_width)
     cap.set(cv.CAP_PROP_FRAME_HEIGHT, cap_height)
 
+    print("d")
     # Model load #############################################################
     mp_hands = mp.solutions.hands
     hands = mp_hands.Hands(
@@ -107,6 +110,7 @@ def main(): #Initialising of camera
     #         cv.destroyAllWindows()
     #     number, mode = select_mode(key, mode)
 
+    print("a")
     return use_brect, hands, keypoint_classifier, cvFpsCalc, point_history, finger_gesture_history, keypoint_classifier_labels, cap
 
 def loading(mode, use_brect, hands, keypoint_classifier, cvFpsCalc, point_history, finger_gesture_history, keypoint_classifier_labels, cap, number, key, data):

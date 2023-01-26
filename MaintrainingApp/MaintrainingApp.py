@@ -7,6 +7,11 @@ import threading
 import numpy as np
 import warnings
 import cv2
+import csv
+import argparse
+import copy
+from collections import deque 
+import mediapipe as mp
 #from jnius import autoclass
 
 ##/ KIVY PACKAGES /#############################################################
@@ -36,9 +41,12 @@ import tensorflow
 from keras.models import load_model
 from keras.utils import load_img, img_to_array
 
-##/ SIGN LANGUAGES CODE /################################################
+##/ SIGN LANGUAGES PACKAGES /################################################
 import signlanguage.app as app
 import signlanguage.keypoint as keypoint
+from signlanguage.utils.cvfpscalc import CvFpsCalc
+from signlanguage.model.keypoint_classifier.keypoint_classifier import KeyPointClassifier
+
 
 
 ##/ PACKAGE CONFIGURATION /#####################################################
@@ -311,8 +319,8 @@ prompts = { #prompt format: "prompt":['good emotions','okay emotions']
             }
 
 ##/ MAIN CLASS /#############################################################
-class trainingApp(MDApp): 
-
+class App(MDApp): 
+    ##/ INITIALISATION ######################################################
     def build(self): #intialize color themes and variables
         self.theme_cls.colors = colors
         self.theme_cls.primary_palette = "Purple"
@@ -328,6 +336,7 @@ class trainingApp(MDApp):
         self.key = 0  
         return Builder.load_string(KV) #load kivy UI
     
+    ##/ TRAING SIMULATOR ######################################################
     def loadTrainingPage(self): #load training page and camera
         self.root.current = 'training' #change page to training
         self.getPrompt() #retrieve a random prompt
@@ -498,43 +507,89 @@ class trainingApp(MDApp):
     #mainsim.recognizeSpeech()
 
 
-    # Main Image Reconition #####################################################
+    ##/ SIGN LANGUAGE TRANSLATOR ######################################################
     def main(self):
-        # When Camera On #####################################################
-        if self.camera == 0:
+        if self.camera == 0: # When Camera On
             self.image = Image() #Get image
             # going to app.py for the function main(), which initialises variables to open camera
-            print("1")
-            self.use_brect, self.hands, self.keypoint_classifier, self.cvFpsCalc, self.point_history, self.finger_gesture_history, self.keypoint_classifier_labels, self.cap = app.main()
-            print("2")
+            self.use_brect, self.hands, self.keypoint_classifier, self.cvFpsCalc, self.point_history, self.finger_gesture_history, self.keypoint_classifier_labels, self.cap = self.Tmain()
             self.number = None 
             self.data = None
             self.mode = 0
-            print("2")
-            self.root.ids.screen1.add_widget(self.image) #adding image widget
+            self.root.get_screen('translating').ids.screen1.add_widget(self.image)
+            # self.root.ids.screen1.add_widget(self.image) #adding image widget
             Clock.schedule_interval(self.load_video, 1.0/33.0) #scheduling image widget to be updated every 1.0/33.0 seconds
             self.camera = 1
-            print("3")
-        # When Camera Off #####################################################
-        elif self.camera == 1:
+ 
+        elif self.camera == 1: # When Camera Off
             self.camera = 0
             self.key = 1
             Clock.unschedule(self.load_video) #stop updating image widget
             Clock.schedule_once(self.load_video, -1) #update image widget one last time before next frame
             Clock.schedule_once(self.keyReseter)
             self.root.ids.screen1.remove_widget(self.image) #remove widget image
+    
+    def Tmain(self): #Initialising of camera
+        args = self.get_args() # Argument parsing
 
-    # Training SL Model #####################################################
-    def train(self):
+        cap_width = args.width
+        cap_height = args.height
+
+        use_static_image_mode = args.use_static_image_mode
+        min_detection_confidence = args.min_detection_confidence
+        min_tracking_confidence = args.min_tracking_confidence
+
+        use_brect = True
+
+        cap = cv2.VideoCapture(0)  # Camera preparation
+        cap.set(cv2.CAP_PROP_FRAME_WIDTH, cap_width)
+        cap.set(cv2.CAP_PROP_FRAME_HEIGHT, cap_height)
+
+        mp_hands = mp.solutions.hands # Model load
+        hands = mp_hands.Hands(
+            static_image_mode=use_static_image_mode,
+            max_num_hands=2,
+            min_detection_confidence=min_detection_confidence,
+            min_tracking_confidence=min_tracking_confidence,
+        )
+
+        keypoint_classifier = KeyPointClassifier()
+        # point_history_classifier = PointHistoryClassifier()
+
+        with open('signlanguage/model/keypoint_classifier/keypoint_classifier_label.csv',
+                encoding='utf-8-sig') as f:
+            keypoint_classifier_labels = csv.reader(f)
+            keypoint_classifier_labels = [
+                row[0] for row in keypoint_classifier_labels
+            ] # Read labels
+        # with open(
+        #         'model/point_history_classifier/point_history_classifier_label.csv',
+        #         encoding='utf-8-sig') as f:
+        #     point_history_classifier_labels = csv.reader(f)
+        #     point_history_classifier_labels = [
+        #         row[0] for row in point_history_classifier_labels
+        #     ]
+
+        cvFpsCalc = CvFpsCalc(buffer_len=10) # FPS Measurement
+        
+        history_length = 16 # Coordinate history
+        point_history = deque(maxlen=history_length)
+
+        finger_gesture_history = deque(maxlen=history_length) # Finger gesture history
+
+        mode = 0
+        number = 0
+
+        return use_brect, hands, keypoint_classifier, cvFpsCalc, point_history, finger_gesture_history, keypoint_classifier_labels, cap
+
+    def train(self): # Training SL Model
         if self.camera == 0:
             name = self.root.ids.name.text
             slot = int(self.root.ids.slot.text)
-            # Validation #####################################################
-            if name != "" and 0<slot<11:
+            if name != "" and 0<slot<11: # Validation
                 label = []
-                # New SL name in slot #####################################################
-                file = "/Users/liuyanzhao/Documents/GitHub/Tech4Good/[NEW]signlanguage/hand-gesture-recognition-mediapipe-main/model/keypoint_classifier/keypoint_classifier_label.csv"
-                with open(file, "r") as fin:
+                file = "signlanguage/model/keypoint_classifier/keypoint_classifier_label.csv"
+                with open(file, "r") as fin: # New SL name in slot
                     for _ in range(34):
                         label.append(fin.readline().strip("\n"))      
                 label[24+slot-1] = name
@@ -556,8 +611,7 @@ class trainingApp(MDApp):
                 self.root.ids.slot.error = True 
 
         
-        elif self.camera == 1:
-            # Off #####################################################
+        elif self.camera == 1: # Off
             self.camera = 0
             self.key = 1
             Clock.unschedule(self.load_video)
@@ -565,8 +619,7 @@ class trainingApp(MDApp):
             self.root.ids.screen2.remove_widget(self.image)
             Clock.schedule_once(self.keyReseter)
             self.root.ids.notification.text = "Training in Progress!\nPlease do not switch off the app\nEstimated time taken: 30s"
-            # Train!! #####################################################
-            self.training()
+            self.training() # Train
             
     
     @delayable
@@ -592,13 +645,152 @@ class trainingApp(MDApp):
         texture1.blit_buffer(buffer, colorfmt='bgr',bufferfmt='ubyte')
         self.image.texture = texture1
         self.root.ids.label.text = "Number of data collected: {}".format(str(self.data))
+    
+    def loading(mode, use_brect, hands, keypoint_classifier, cvFpsCalc, point_history, finger_gesture_history, keypoint_classifier_labels, cap, number, key, data):
+        fps = cvFpsCalc.get()
+
+        # Camera capture #####################################################
+        ret, image = cap.read()
+        if not ret:
+            cap.release()
+            cv2.destroyAllWindows()
+        image = cv2.flip(image, 1)  # Mirror display
+        debug_image = copy.deepcopy(image)
+
+        # Process Key (ESC: end) #################################################
+        if key == 1:  # ESC
+            cap.release()
+        # number, mode = select_mode(key, mode)
+
+        # Detection implementation #############################################################
+        image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
+
+        image.flags.writeable = False
+        results = hands.process(image)
+        image.flags.writeable = True
+
+        #  ####################################################################
+        if results.multi_hand_landmarks is not None:
+            for hand_landmarks, handedness in zip(results.multi_hand_landmarks,
+                                                    results.multi_handedness):
+                # Bounding box calculation
+                brect = self.calc_bounding_rect(debug_image, hand_landmarks)
+                # Landmark calculation
+                landmark_list = self.calc_landmark_list(debug_image, hand_landmarks)
+
+                # Conversion to relative coordinates / normalized coordinates
+                pre_processed_landmark_list = self.pre_process_landmark(
+                    landmark_list)
+                # pre_processed_point_history_list = pre_process_point_history(
+                #     debug_image, point_history)
+                # Write to the dataset file
+                data = self.logging_csv(number, mode, pre_processed_landmark_list, data)
+
+                # Hand sign classification
+                hand_sign_id = keypoint_classifier(pre_processed_landmark_list)
+                if hand_sign_id == "Not Applicable":  # Point gesture
+                    point_history.append(landmark_list[8])
+                else:
+                    point_history.append([0, 0])
+
+                # # Finger gesture classification
+                # finger_gesture_id = 0
+                # point_history_len = len(pre_processed_point_history_list)
+                # if point_history_len == (history_length * 2):
+                #     finger_gesture_id = point_history_classifier(
+                #         pre_processed_point_history_list)
+
+                # Calculates the gesture IDs in the latest detection
+                # finger_gesture_history.append(finger_gesture_id)
+                most_common_fg_id = Counter(
+                    finger_gesture_history).most_common()
+
+                # Drawing part
+                debug_image = self.draw_bounding_rect(use_brect, debug_image, brect)
+                debug_image = self.draw_landmarks(debug_image, landmark_list)
+                debug_image = self.draw_info_text(
+                    debug_image,
+                    brect,
+                    handedness,
+                    keypoint_classifier_labels[hand_sign_id],
+                    "Hand Motion Detected"
+                    # point_history_classifier_labels[most_common_fg_id[0][0]],
+                )
+        else:
+            point_history.append([0, 0])
+
+        debug_image = draw_point_history(debug_image, point_history)
+        debug_image = draw_info(debug_image, fps, mode, number)
+
+        # cv2.imshow('Hand Gesture Recognition', debug_image) # Screen reflection 
+        return debug_image, data
+    
+    def draw_bounding_rect(use_brect, image, brect):
+        if use_brect:
+            # Outer rectangle
+            cv.rectangle(image, (brect[0], brect[1]), (brect[2], brect[3]),
+                        (0, 0, 0), 1)
+
+        return image
+
+    def calc_landmark_list(image, landmarks):
+        image_width, image_height = image.shape[1], image.shape[0]
+
+        landmark_point = []
+
+        # Keypoint
+        for _, landmark in enumerate(landmarks.landmark):
+            landmark_x = min(int(landmark.x * image_width), image_width - 1)
+            landmark_y = min(int(landmark.y * image_height), image_height - 1)
+            # landmark_z = landmark.z
+
+            landmark_point.append([landmark_x, landmark_y])
+
+        return landmark_point
+
+    def logging_csv(number, mode, landmark_list, data):
+        if mode == 0:
+            pass
+        if mode == 1 and (0 <= number <= 9):
+            csv_path = 'model/keypoint_classifier/keypoint.csv'
+            with open(csv_path, 'a', newline="") as f:
+                writer = csv.writer(f)
+                writer.writerow([number+23, *landmark_list])
+            return data + 1
+        # if mode == 2 and (0 <= number <= 9):
+        #     csv_path = 'model/point_history_classifier/point_history.csv'
+        #     with open(csv_path, 'a', newline="") as f:
+        #         writer = csv.writer(f)
+        #         writer.writerow([number, *point_history_list])
+
+
+    def get_args(self, *args):
+        parser = argparse.ArgumentParser()
+
+        parser.add_argument("--device", type=int, default=0)
+        parser.add_argument("--width", help='cap width', type=int, default=960)
+        parser.add_argument("--height", help='cap height', type=int, default=540)
+
+        parser.add_argument('--use_static_image_mode', action='store_true')
+        parser.add_argument("--min_detection_confidence",
+                            help='min_detection_confidence',
+                            type=float,
+                            default=0.7)
+        parser.add_argument("--min_tracking_confidence",
+                            help='min_tracking_confidence',
+                            type=int,
+                            default=0.5)
+
+        args = parser.parse_args()
+
+        return args
 
 LabelBase.register(name='gothbold', fn_regular='GothamBold.otf')
 LabelBase.register(name='gothmedium', fn_regular='GothamMedium.ttf')
 
 
 if __name__=="__main__":
-    app = trainingApp()
+    app = App()
     app.run()
 
 

@@ -12,8 +12,8 @@ from kivy.graphics.texture import Texture
 
 # Importing Packages #####################################################
 import cv2 as cv
-import app
-import keypoint
+import signlanguage.app as app
+import signlanguage.keypoint as keypoint
 
 
 colors = {
