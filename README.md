@@ -1,12 +1,12 @@
-# tech4Good
+# Tech4Good
 
 Problem statement: *How might we allow people with Intellectual Disability (ID) to correct & learn socially acceptable ways to communicate such that he/she can express his/her thoughts & feelings without offending others?*
 
 Proposed Solution: A companion app aimed to cultivate better social skills and correct behavior in those with IDs. 
 
 The proposed companion app has these 3 main features:
-1. A training simulator for those who can verbally communicate - An app that comes up with senarios and analyses reply based on acceptibility and facial expressions (Kazu)
-2. A training simulator for those who cannot verbally communicate - teaching appropriate sign languages, sign language decoder and a function to create new and ;unique; sign language customised for each person (Yanzhao)
+1. A conversation simulator for those who can verbally communicate - comes up with conversation prompts and analyzes the user's reply using facial emotion recognition (not currently used for grading due to innacuracy) and natural language processing (sentiment analysis). (Kazu)
+2. A training simulator for those who cannot verbally communicate - teaching appropriate sign languages, sign language decoder and a function to create new and ;unique; sign language customized for each person (Yanzhao)
 3. A spam limter (Kiran)
 
 This repository contains the following contents.
@@ -36,13 +36,13 @@ This repository contains the following contents.
 
 # Demo
 ## To run Sign Language Program
-1. go to hand-gesture-recognition-mediapipe-main directory<br>e.g. cd /Users/liuyanzhao/Documents/GitHub/Tech4Good/[NEW]signlanguagehand-gesture-recognition-mediapipe-main
+1. Navigate to hand-gesture-recognition-mediapipe-main directory<br>e.g. cd /Users/liuyanzhao/Documents/GitHub/Tech4Good/[NEW]signlanguagehand-gesture-recognition-mediapipe-main
 2. python3 kivyapp.py
 ## To run Maintraining App:
-1. go to MaintrainingApp Directory<br>e.g. cd /Users/liuyanzhao/Documents/GitHub/Tech4Good/MaintrainingApp
+1. Navigate to MaintrainingApp Directory<br>e.g. cd /Users/liuyanzhao/Documents/GitHub/Tech4Good/MaintrainingApp
 2. python3 MaintrainingApp.py
 ## Using Anti-spam engine
-1. go to Anti-Spam+Language_Correction Directory<br>/Users/liuyanzhao/Documents/GitHub/Tech4Good/Anti-Spam+Language_Correction/Anti-Spam+Language_Correction
+1. Navigate to Anti-Spam+Language_Correction Directory<br>/Users/liuyanzhao/Documents/GitHub/Tech4Good/Anti-Spam+Language_Correction/Anti-Spam+Language_Correction
 2. python3 Anti_Spam_Language_Correction.py<br>note that this only works on mac/windows
 
 # Directory
