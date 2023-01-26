@@ -36,13 +36,13 @@ This repository contains the following contents.
 
 # Demo
 ## To run Sign Language Program
-1. go to hand-gesture-recognition-mediapipe-main directory<br>e.g. cd /Users/liuyanzhao/Documents/GitHub/Tech4Good/[NEW]signlanguagehand-gesture-recognition-mediapipe-main
+1. Navigate to hand-gesture-recognition-mediapipe-main directory<br>e.g. cd /Users/liuyanzhao/Documents/GitHub/Tech4Good/[NEW]signlanguagehand-gesture-recognition-mediapipe-main
 2. python3 kivyapp.py
 ## To run Maintraining App:
-1. go to MaintrainingApp Directory<br>e.g. cd /Users/liuyanzhao/Documents/GitHub/Tech4Good/MaintrainingApp
+1. Navigate to MaintrainingApp Directory<br>e.g. cd /Users/liuyanzhao/Documents/GitHub/Tech4Good/MaintrainingApp
 2. python3 MaintrainingApp.py
 ## Using Anti-spam engine
-1. go to Anti-Spam+Language_Correction Directory<br>/Users/liuyanzhao/Documents/GitHub/Tech4Good/Anti-Spam+Language_Correction/Anti-Spam+Language_Correction
+1. Navigate to Anti-Spam+Language_Correction Directory<br>/Users/liuyanzhao/Documents/GitHub/Tech4Good/Anti-Spam+Language_Correction/Anti-Spam+Language_Correction
 2. python3 Anti_Spam_Language_Correction.py<br>note that this only works on mac/windows
 
 # Directory
