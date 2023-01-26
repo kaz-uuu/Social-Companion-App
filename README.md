@@ -5,8 +5,8 @@ Problem statement: *How might we allow people with Intellectual Disability (ID) 
 Proposed Solution: A companion app aimed to cultivate better social skills and correct behavior in those with IDs. 
 
 The proposed companion app has these 3 main features:
-1. A training simulator for those who can verbally communicate - An app that comes up with senarios and analyses reply based on acceptibility and facial expressions (Kazu)
-2. A training simulator for those who cannot verbally communicate - teaching appropriate sign languages, sign language decoder and a function to create new and ;unique; sign language customised for each person (Yanzhao)
+1. A conversation simulator for those who can verbally communicate - comes up with conversation prompts and analyzes the user's reply using facial emotion recognition (not currently used for grading due to innacuracy) and natural language processing (sentiment analysis). (Kazu)
+2. A training simulator for those who cannot verbally communicate - teaching appropriate sign languages, sign language decoder and a function to create new and ;unique; sign language customized for each person (Yanzhao)
 3. A spam limter (Kiran)
 
 This repository contains the following contents.
