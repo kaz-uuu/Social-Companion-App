@@ -514,7 +514,7 @@ class App(MDApp):
         if self.camera == 0: # When Camera On
             self.image = Image() #Get image
             # going to app.py for the function main(), which initialises variables to open camera
-            self.use_brect, self.hands, self.keypoint_classifier, self.cvFpsCalc, self.point_history, self.finger_gesture_history, self.keypoint_classifier_labels, self.cap = self.Tmain()
+            self.use_brect, self.hands, self.keypoint_classifier, self.cvFpsCalc, self.point_history, self.finger_gesture_history, self.keypoint_classifier_labels, self.cap = self.Init()
             self.number = None 
             self.data = None
             self.mode = 0
@@ -528,9 +528,9 @@ class App(MDApp):
             Clock.unschedule(self.load_video) #stop updating image widget
             Clock.schedule_once(self.load_video, -1) #update image widget one last time before next frame
             Clock.schedule_once(self.keyReseter)
-            self.root.ids.screen1.remove_widget(self.image) #remove widget image
+            self.root.get_screen('translating').ids.screen1.remove_widget(self.image) #remove widget image
     
-    def Tmain(self): #Initialising of camera
+    def Init(self): #Initialising of camera
         args = self.get_args() # Argument parsing
 
         cap_width = args.width
@@ -585,8 +585,8 @@ class App(MDApp):
 
     def train(self): # Training SL Model
         if self.camera == 0:
-            name = self.root.ids.name.text
-            slot = int(self.root.ids.slot.text)
+            name = self.root.get_screen('translating').ids.name.text
+            slot = int(self.root.get_screen('translating').ids.slot.text)
             if name != "" and 0<slot<11: # Validation
                 label = []
                 file = "signlanguage/model/keypoint_classifier/keypoint_classifier_label.csv"
@@ -596,20 +596,20 @@ class App(MDApp):
                 label[24+slot-1] = name
                 with open(file, "w") as fout:
                     fout.write("\n".join(label))
-                self.root.ids.name.text = ""
-                self.root.ids.slot.text = ""
+                self.root.get_screen('translating').ids.name.text = ""
+                self.root.get_screen('translating').ids.slot.text = ""
                 # On #####################################################
                 self.image = Image()
-                self.use_brect, self.hands, self.keypoint_classifier, self.cvFpsCalc, self.point_history, self.finger_gesture_history, self.keypoint_classifier_labels, self.cap = app.main()
+                self.use_brect, self.hands, self.keypoint_classifier, self.cvFpsCalc, self.point_history, self.finger_gesture_history, self.keypoint_classifier_labels, self.cap = app.Init()
                 self.number = slot
                 self.mode = 1 #new data mode
                 self.data = 0
-                self.root.ids.screen2.add_widget(self.image) #adding widget
+                self.root.get_screen('translating').ids.screen2.add_widget(self.image) #adding widget
                 Clock.schedule_interval(self.load_video, 1.0/10.0) #updating image widget per 1.0/10.0seconds (slower than previously to save procesing power)
                 self.camera = 1
             else:
-                self.root.ids.name.error = True #invalid input, error = true
-                self.root.ids.slot.error = True 
+                self.root.get_screen('translating').ids.name.error = True #invalid input, error = true
+                self.root.get_screen('translating').ids.slot.error = True 
 
         
         elif self.camera == 1: # Off
@@ -617,9 +617,9 @@ class App(MDApp):
             self.key = 1
             Clock.unschedule(self.load_video)
             Clock.schedule_once(self.load_video, -1)
-            self.root.ids.screen2.remove_widget(self.image)
+            self.root.get_screen('translating').ids.screen2.remove_widget(self.image)
             Clock.schedule_once(self.keyReseter)
-            self.root.ids.notification.text = "Training in Progress!\nPlease do not switch off the app\nEstimated time taken: 30s"
+            self.root.get_screen('translating').ids.notification.text = "Training in Progress!\nPlease do not switch off the app\nEstimated time taken: 30s"
             self.training() # Train
             
     
@@ -632,7 +632,7 @@ class App(MDApp):
                 content=MDLabel(text=str(report),halign="center",
                     theme_text_color="Error",),
                 size_hint=(None, None), size=(800, 1400))
-        self.root.ids.notification.text = ""
+        self.root.get_screen('translating').ids.notification.text = ""
         popup.open() #Open pop-up
 
     def keyReseter(self, *args):
@@ -933,7 +933,6 @@ class App(MDApp):
 
         return image
 
-    
     def draw_bounding_rect(self, use_brect, image, brect):
         if use_brect:
             # Outer rectangle
@@ -1012,7 +1011,7 @@ class App(MDApp):
         if mode == 0:
             pass
         if mode == 1 and (0 <= number <= 9):
-            csv_path = 'model/keypoint_classifier/keypoint.csv'
+            csv_path = 'signlanguage/model/keypoint_classifier/keypoint.csv'
             with open(csv_path, 'a', newline="") as f:
                 writer = csv.writer(f)
                 writer.writerow([number+23, *landmark_list])
@@ -1023,7 +1022,6 @@ class App(MDApp):
         #         writer = csv.writer(f)
         #         writer.writerow([number, *point_history_list])
 
-    
     def calc_bounding_rect(self, image, landmarks):
         image_width, image_height = image.shape[1], image.shape[0]
 
@@ -1040,7 +1038,6 @@ class App(MDApp):
         x, y, w, h = cv2.boundingRect(landmark_array)
 
         return [x, y, x + w, y + h]
-
 
     def get_args(self, *args):
         parser = argparse.ArgumentParser()
