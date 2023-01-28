@@ -33,6 +33,7 @@ from kivymd.uix.snackbar import Snackbar
 from kivymd.uix.button import MDFlatButton
 from kivymd.uix.label import MDLabel
 from kivy.uix.popup import Popup
+from kivy.uix.screenmanager import NoTransition
 from kivyoav.delayed import delayable 
 
 ##/ EMOTION RECOGNITION PACKAGES /################################################
@@ -190,10 +191,10 @@ WindowManager:
                 id: screen1
                 name: 'screen1'
                 text: 'Sign Language'
-                transition_direction: 'Left'
                 MDTopAppBar:
                     title: "Sign Language"
                     pos_hint: {"center_y": 0.97}
+                    left_action_items: [["home", lambda x: app.loadHomePage()]]
                 MDBoxLayout:
                     orientation: "vertical"
                     pos_hint: {'center_y':0.1}
@@ -209,7 +210,6 @@ WindowManager:
                 id: screen2
                 name: 'screen2'
                 text: 'Training Sign Language'
-                transition_direction: 'Right'
                 MDLabel:
                     id: notification
                     pos_hint: {'center_y':0.5}
@@ -217,6 +217,7 @@ WindowManager:
                 MDTopAppBar:
                     title: "Sign Language Trainer"
                     pos_hint: {"center_y": 0.97}
+                    left_action_items: [["home", lambda x: app.loadHomePage()]]
                 MDBoxLayout:
                     id: box
                     orientation: "vertical"
@@ -340,13 +341,19 @@ class App(MDApp):
     
     ##/ TRAING SIMULATOR ######################################################
     def loadTrainingPage(self): #load training page and camera
+        self.root.transition = NoTransition()
         self.root.current = 'training' #change page to training
         self.getPrompt() #retrieve a random prompt
         if self.startedcam == False: #check if camera has been started already
             self.startcam()
     
     def loadTranslatingPage(self):
+        self.root.transition = NoTransition()
         self.root.current = 'translating'
+    
+    def loadHomePage(self):
+        self.root.transition = NoTransition()
+        self.root.current = 'home'
 
     def startcam(self): #Load Camera
         self.image = Image() #Initialize image
@@ -621,7 +628,6 @@ class App(MDApp):
             Clock.schedule_once(self.keyReseter)
             self.root.get_screen('translating').ids.notification.text = "Training in Progress!\nPlease do not switch off the app\nEstimated time taken: 30s"
             self.training() # Train
-            
     
     @delayable
     def training(self, *args):

@@ -35,9 +35,6 @@ This repository contains the following contents.
 * pip3 install matplotlib
 
 # Demo
-## To run Sign Language Program
-1. Navigate to hand-gesture-recognition-mediapipe-main directory<br>e.g. cd /Users/liuyanzhao/Documents/GitHub/Tech4Good/[NEW]signlanguagehand-gesture-recognition-mediapipe-main
-2. python3 kivyapp.py
 ## To run Maintraining App:
 1. Navigate to MaintrainingApp Directory<br>e.g. cd /Users/liuyanzhao/Documents/GitHub/Tech4Good/MaintrainingApp
 2. python3 MaintrainingApp.py
