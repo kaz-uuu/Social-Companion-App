@@ -240,7 +240,7 @@ WindowManager:
                         text: "Start Training!"
                         on_press: app.train()
                         adaptive_size: True
-                        pos_hint: {'center_x':0.5}  
+                        pos_hint: {'center_x':0.5}   
                     MDLabel:
                         id: label
                         halign: 'center'    
@@ -291,7 +291,6 @@ WindowManager:
 <LoadingPage>:
             
 '''
-
 
 class HomePage(Screen):
     pass
@@ -346,14 +345,6 @@ class App(MDApp):
         self.getPrompt() #retrieve a random prompt
         if self.startedcam == False: #check if camera has been started already
             self.startcam()
-    
-    def loadTranslatingPage(self):
-        self.root.transition = NoTransition()
-        self.root.current = 'translating'
-    
-    def loadHomePage(self):
-        self.root.transition = NoTransition()
-        self.root.current = 'home'
 
     def startcam(self): #Load Camera
         self.image = Image() #Initialize image
@@ -481,6 +472,7 @@ class App(MDApp):
             self.result = '[b]Not Bad, Still Room To Improve![/b]'
         else:
             self.result = '[b]Needs Work![/b]'
+
     def antispam(self):
         if self.firsttimeantispam == False:
             snackbar = Snackbar(
@@ -506,7 +498,6 @@ class App(MDApp):
             snackbar.open()
             self.firsttimeantispam = True
     
-
     # def startantispam(self): #this function starts the antispam and language corrector as a background service
     #     antispamservice = autoclass(SERVICE_NAME)
     #     mActivity = autoclass(u'org.kivy.android.PythonActivity').mActivity
@@ -517,6 +508,14 @@ class App(MDApp):
 
 
     ##/ SIGN LANGUAGE TRANSLATOR ######################################################
+    def loadTranslatingPage(self):
+        self.root.transition = NoTransition()
+        self.root.current = 'translating'
+
+    def loadHomePage(self):
+        self.root.transition = NoTransition()
+        self.root.current = 'home' 
+
     def main(self):
         if self.camera == 0: # When Camera On
             self.image = Image() #Get image
@@ -589,24 +588,19 @@ class App(MDApp):
         number = 0
 
         return use_brect, hands, keypoint_classifier, cvFpsCalc, point_history, finger_gesture_history, keypoint_classifier_labels, cap
-
+        
     def train(self): # Training SL Model
-        if self.camera == 0:
-            name = self.root.get_screen('translating').ids.name.text
+        try: 
+            name = str(self.root.get_screen('translating').ids.name.text)
             slot = int(self.root.get_screen('translating').ids.slot.text)
+        except:
+            self.root.get_screen('translating').ids.name.error = True #invalid input
+            self.root.get_screen('translating').ids.slot.error = True 
+        if self.camera == 0:
             if name != "" and 0<slot<11: # Validation
-                label = []
-                file = "signlanguage/model/keypoint_classifier/keypoint_classifier_label.csv"
-                with open(file, "r") as fin: # New SL name in slot
-                    for _ in range(34):
-                        label.append(fin.readline().strip("\n"))      
-                label[24+slot-1] = name
-                with open(file, "w") as fout:
-                    fout.write("\n".join(label))
-                self.root.get_screen('translating').ids.name.text = ""
-                self.root.get_screen('translating').ids.slot.text = ""
                 # On #####################################################
                 self.image = Image()
+                self.newLandmarks = []
                 self.use_brect, self.hands, self.keypoint_classifier, self.cvFpsCalc, self.point_history, self.finger_gesture_history, self.keypoint_classifier_labels, self.cap = app.Init()
                 self.number = slot
                 self.mode = 1 #new data mode
@@ -614,11 +608,11 @@ class App(MDApp):
                 self.root.get_screen('translating').ids.screen2.add_widget(self.image) #adding widget
                 Clock.schedule_interval(self.load_video, 1.0/10.0) #updating image widget per 1.0/10.0seconds (slower than previously to save procesing power)
                 self.camera = 1
+                cancleButton = MDFlatButton(text='Cancel', on_press=app.cancel)
+                self.root.get_screen('translating').ids.screen2.add_widget(cancleButton)
             else:
                 self.root.get_screen('translating').ids.name.error = True #invalid input, error = true
                 self.root.get_screen('translating').ids.slot.error = True 
-
-        
         elif self.camera == 1: # Off
             self.camera = 0
             self.key = 1
@@ -627,7 +621,21 @@ class App(MDApp):
             self.root.get_screen('translating').ids.screen2.remove_widget(self.image)
             Clock.schedule_once(self.keyReseter)
             self.root.get_screen('translating').ids.notification.text = "Training in Progress!\nPlease do not switch off the app\nEstimated time taken: 30s"
-            self.training() # Train
+            self.logging_csv(self.newLandmarks, slot, name)
+            self.root.get_screen('translating').ids.name.text = ""
+            self.root.get_screen('translating').ids.slot.text = ""
+            # self.training() # Train
+            
+    def cancel(self, *args):
+        self.camera = 0
+        self.key = 1
+        Clock.unschedule(self.load_video)
+        Clock.schedule_once(self.load_video, -1)
+        self.root.get_screen('translating').ids.screen2.remove_widget(self.image)
+        Clock.schedule_once(self.keyReseter)
+        self.newLandmarks = []
+        self.root.get_screen('translating').ids.name.text = ""
+        self.root.get_screen('translating').ids.slot.text = ""
     
     @delayable
     def training(self, *args):
@@ -691,7 +699,7 @@ class App(MDApp):
                 # pre_processed_point_history_list = pre_process_point_history(
                 #     debug_image, point_history)
                 # Write to the dataset file
-                data = self.logging_csv(number, mode, pre_processed_landmark_list, data)
+                data = self.appending_data(number, mode, pre_processed_landmark_list, data)
 
                 # Hand sign classification
                 hand_sign_id = keypoint_classifier(pre_processed_landmark_list)
@@ -1013,20 +1021,28 @@ class App(MDApp):
 
         return temp_landmark_list
 
-    def logging_csv(self, number, mode, landmark_list, data):
+    def appending_data(self, number, mode, landmark_list, data):
         if mode == 0:
             pass
         if mode == 1 and (0 <= number <= 9):
-            csv_path = 'signlanguage/model/keypoint_classifier/keypoint.csv'
-            with open(csv_path, 'a', newline="") as f:
-                writer = csv.writer(f)
-                writer.writerow([number+23, *landmark_list])
+            self.newLandmarks.append([number+23, *landmark_list])
             return data + 1
-        # if mode == 2 and (0 <= number <= 9):
-        #     csv_path = 'model/point_history_classifier/point_history.csv'
-        #     with open(csv_path, 'a', newline="") as f:
-        #         writer = csv.writer(f)
-        #         writer.writerow([number, *point_history_list])
+        
+    def logging_csv(self, data, slot, name):
+        label = []
+        file = "signlanguage/model/keypoint_classifier/keypoint_classifier_label.csv"
+        with open(file, "r") as fin: # New SL name in slot
+            for _ in range(34):
+                label.append(fin.readline().strip("\n"))      
+        label[23+slot-1] = name
+        with open(file, "w") as fout: #logging label name
+            fout.write("\n".join(label))
+
+        csv_path = 'signlanguage/model/keypoint_classifier/keypoint.csv'
+        with open(csv_path, 'a', newline="") as f:
+            for i in data: #logging new landmark data
+                writer = csv.writer(f)
+                writer.writerow(i) 
 
     def calc_bounding_rect(self, image, landmarks):
         image_width, image_height = image.shape[1], image.shape[0]
