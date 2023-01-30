@@ -147,7 +147,6 @@ WindowManager:
             id: layout
             orientation: 'vertical'
             adaptive_size: True
-
         MDTopAppBar:
             title: "Training Simulator"
             pos_hint: {"center_y": 0.97}
@@ -172,6 +171,7 @@ WindowManager:
             pos_hint: {"center_x": .5, "center_y": .3}
             font_name: 'gothmedium'
         MDTextField:
+            id: showwords
             required: True
             multiline: True
             halign: 'center'
@@ -179,6 +179,12 @@ WindowManager:
             mode: "fill"
             fill_color: 0, 0, 0, .4
             text: "Record answer to show words recognized."
+        MDRaisedButton:
+            id: submitbutton
+            text: "Submit Answer"
+            on_release: app.loadResults()
+            pos_hint: {"center_x": .5, "center_y": .1}
+            font_name: 'gothmedium'
 
 <TranslatingPage>:
     name: 'translating'
@@ -262,7 +268,6 @@ WindowManager:
             halign: 'center'
             pos_hint: {'center_y': .6}
             font_size: 64
-
         MDLabel:
             id: emotionlabel
             font_name: 'gothmedium'
@@ -289,7 +294,15 @@ WindowManager:
             pos_hint: {"center_x": .5, "center_y": .13}
 
 <LoadingPage>:
-            
+    name: 'loading'
+    MDScreen:
+        MDLabel:
+            id: loadinglabel
+            font_name: 'gothmedium'
+            text: "Loading..."
+            halign: 'center'
+            pos_hint: {'center_y': .5}
+            font_size: 40
 '''
 
 class HomePage(Screen):
@@ -322,7 +335,7 @@ prompts = { #prompt format: "prompt":['good emotions','okay emotions']
 
 ##/ MAIN CLASS /#############################################################
 class App(MDApp): 
-    ##/ INITIALISATION ######################################################
+    # INITIALIZATION ######################################################
     def build(self): #intialize color themes and variables
         self.theme_cls.colors = colors
         self.theme_cls.primary_palette = "Purple"
@@ -338,7 +351,7 @@ class App(MDApp):
         self.key = 0  
         return Builder.load_string(KV) #load kivy UI
     
-    ##/ TRAING SIMULATOR ######################################################
+    # TRAING SIMULATOR ######################################################
     def loadTrainingPage(self): #load training page and camera
         self.root.transition = NoTransition()
         self.root.current = 'training' #change page to training
@@ -382,6 +395,7 @@ class App(MDApp):
 
     def voice2text(self): #making the record response button toggleable 
         if self.toggle == False:
+            print('toggle is false now true')
             self.toggle = True
             self.listen = True
             self.root.get_screen('training').ids.recordbutton.text = 'Press to stop recording and submit response'
@@ -389,14 +403,16 @@ class App(MDApp):
             self.thread = threading.Thread(target=self.recognizeSpeech)  # create a thread to run two functions at once
             self.thread.start()
         elif self.listen == True: #submitted response
-            print("Loading")
             self.listen = False
-            self.thread = None
             self.toggle = False
             self.root.get_screen('training').ids.recordbutton.text = 'Press to record response'
-            self.loadResults()
+        while not self.answer: # wait for words to recognize before continuing
+            time.sleep(0.5)
+        while True: # keep on uppdating words spoken until user submits answer
+            self.root.get_screen('training').ids.showwords.text = self.answer
+            self.answer = self.answer + " " + self.text
 
-    def recognizeSpeech(self, *args):
+    def recognizeSpeech(self, *args): # speech recognition function. run on second thread which means it cant change graphics
         while self.listen == True:
             self.answer = ""
             print("Starting Recording")
@@ -408,31 +424,39 @@ class App(MDApp):
                     with speech_recognition.Microphone() as mic:
                         recognizer.adjust_for_ambient_noise(mic,duration=1)
                         audio = recognizer.listen(mic)
-                        text = recognizer.recognize_google(audio)
+                        self.text = recognizer.recognize_google(audio)
                         print('listening...')
-                        text = text.lower()
-                        self.answer = self.answer + " " + text
-                        print(self.answer)
+                        self.text = self.text.lower()
                 except speech_recognition.UnknownValueError:
                     recognizer = speech_recognition.Recognizer()
                     continue
-        print("--- Thread Ended --------------------------")
 
     def loadResults(self):
+        #Reset button states in case the stop recording button was not pressed
+        self.listen = False
+        self.thread = None
+        self.toggle = False
+        self.root.get_screen('training').ids.recordbutton.text = 'Press to record response'
+        #
+        self.root.current = 'loading' #switch page to loading page
         print('[gradePrompt] starting tehread')
-        self.thread = threading.Thread(target=self.gradePrompt)  # function's name without ()
+        self.loading = True
+        self.thread = threading.Thread(target=self.gradePrompt)  #start a thread to grade the prompt
         self.thread.start()
-        self.root.current = 'results'
         print("10")
         print("done")
         self.thread.join()
+        while self.loading:
+            time.sleep(1)
         if self.result == 'not detected':
             self.root.get_screen('results').ids.resultlabel.text = 'No input was recognized. Please try again.'
             self.root.get_screen('results').ids.emotionlabel.text = ''
         else:
             self.root.get_screen('results').ids.resultlabel.text = self.result
             self.root.get_screen('results').ids.emotionlabel.text = "Emotion Detected: " + self.emotion
-    
+        self.root.current = 'results' #switch page to results page
+
+
     def getPrompt(self): #pull random scenario from dictionary
         print("getPrompt called")
         print("generating random key............")
@@ -454,15 +478,10 @@ class App(MDApp):
         print(okans)
         tokenizer = RobertaTokenizerFast.from_pretrained("arpanghoshal/EmoRoBERTa")
         model = TFRobertaForSequenceClassification.from_pretrained("arpanghoshal/EmoRoBERTa")
-        
         emotion = pipeline('sentiment-analysis',model='arpanghoshal/EmoRoBERTa')
-
         emotion_labels = emotion(self.answer)
-        
         print(emotion_labels)
-        
         self.emotion = emotion_labels[0]['label']
-
         print(self.emotion)
         if not self.emotion:
             self.result = 'not detected'
@@ -472,6 +491,7 @@ class App(MDApp):
             self.result = '[b]Not Bad, Still Room To Improve![/b]'
         else:
             self.result = '[b]Needs Work![/b]'
+        self.loading = False
 
     def antispam(self):
         if self.firsttimeantispam == False:
