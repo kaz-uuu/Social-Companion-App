@@ -328,13 +328,14 @@ prompts = { #prompt format: "prompt":['good emotions','okay emotions']
             "I recently got a job offer for my dream job!"
             :['admiration curiosity excitement joy caring optimism hopeful','neutral'],
             "My pet died yesterday."
-            :['remorse caring surprise grief','neutral curiosity'],
+            :['remorse caring surprise grief fear','neutral curiosity'],
             "I am going to Australia for a two week holiday!"
             :['caring curiousity optimism admiration approval amusement','desire']
             }
 
 ##/ MAIN CLASS /#############################################################
 class App(MDApp): 
+
     # INITIALIZATION ######################################################
     def build(self): #intialize color themes and variables
         self.theme_cls.colors = colors
@@ -342,8 +343,7 @@ class App(MDApp):
         self.theme_cls.material_style = "M3"
         self.theme_cls.theme_style = "Light"
         self.firsttimeantispam = False
-        self.thread = None
-        self.startedcam = False
+        self.oncam = False
         Window.size = (450,975) #set window size
         self.toggle = False
         self.listen = False
@@ -356,8 +356,10 @@ class App(MDApp):
         self.root.transition = NoTransition()
         self.root.current = 'training' #change page to training
         self.getPrompt() #retrieve a random prompt
-        if self.startedcam == False: #check if camera has been started already
-            self.startcam()
+        #self.vidthread = threading.Thread(target=self.startcam) # assign video camera to a new thread
+        if self.oncam == False: #check if camera has been started already
+            self.oncam = True #toggle camera state
+            self.startcam()    
 
     def startcam(self): #Load Camera
         self.image = Image() #Initialize image
@@ -365,7 +367,9 @@ class App(MDApp):
         self.capture = cv2.VideoCapture(1) #select camera input
         Clock.schedule_interval(self.loadVideo, 1.0/30.0) #load camera view at 30 frames per second
         self.root.get_screen('training').ids.layout.add_widget(self.image) #add image view to training page
-        self.startedcam = True 
+        self.oncam = True
+        print('got here')
+        #self.capture.release()
 
     def loadVideo(self, *args): #load frame
         ret, test_img = self.capture.read()  # captures frame and returns boolean value and captured image
@@ -394,68 +398,63 @@ class App(MDApp):
         self.image.texture = texture
 
     def voice2text(self): #making the record response button toggleable 
-        if self.toggle == False:
+        if self.toggle == False: # pressed to record
             print('toggle is false now true')
             self.toggle = True
             self.listen = True
-            self.root.get_screen('training').ids.recordbutton.text = 'Press to stop recording and submit response'
+            self.root.get_screen('training').ids.recordbutton.text = 'Press to stop recording and edit response'
             print('[voice2text] starting thread')
             self.thread = threading.Thread(target=self.recognizeSpeech)  # create a thread to run two functions at once
             self.thread.start()
-        elif self.listen == True: #submitted response
+        elif self.listen == True: # pressed to stop recording
             self.listen = False
             self.toggle = False
             self.root.get_screen('training').ids.recordbutton.text = 'Press to record response'
-        while not self.answer: # wait for words to recognize before continuing
-            time.sleep(0.5)
-        while True: # keep on uppdating words spoken until user submits answer
             self.root.get_screen('training').ids.showwords.text = self.answer
-            self.answer = self.answer + " " + self.text
-
+            self.root.get_screen('training').ids.showwords.helper_text = 'Tap on your answer to edit it.'
+      
     def recognizeSpeech(self, *args): # speech recognition function. run on second thread which means it cant change graphics
-        while self.listen == True:
-            self.answer = ""
-            print("Starting Recording")
-            recognizer = speech_recognition.Recognizer() #start recognizing speech
-            print("speak anything")
-            while self.listen:
-                print("listening...")
-                try:
-                    with speech_recognition.Microphone() as mic:
-                        recognizer.adjust_for_ambient_noise(mic,duration=1)
-                        audio = recognizer.listen(mic)
-                        self.text = recognizer.recognize_google(audio)
-                        print('listening...')
-                        self.text = self.text.lower()
-                except speech_recognition.UnknownValueError:
-                    recognizer = speech_recognition.Recognizer()
-                    continue
+        self.answer = ""
+        print("Starting Recording")
+        recognizer = speech_recognition.Recognizer() #start recognizing speech
+        print("speak anything")
+        while self.listen:
+            print("listening...")
+            try:
+                with speech_recognition.Microphone() as mic:
+                    recognizer.adjust_for_ambient_noise(mic,duration=1)
+                    audio = recognizer.listen(mic)
+                    text = recognizer.recognize_google(audio)
+                    self.answer = self.answer + " " + text.lower()
+            except speech_recognition.UnknownValueError:
+                recognizer = speech_recognition.Recognizer()
+                continue
+            if not self.listen:
+                break
+        print("LISTEN ENDED")
 
-    def loadResults(self):
-        #Reset button states in case the stop recording button was not pressed
-        self.listen = False
-        self.thread = None
-        self.toggle = False
+    def loadResults(self): # triggered when submit answer button is pressed
+        self.answer = self.root.get_screen('training').ids.showwords.text
+        self.root.current = 'results' #switch page to results page
+        Clock.unschedule(self.loadVideo) # stop clock from loading video frames
+        self.oncam = False
+        self.capture.release() # turn off camera
+        self.listen = False # stop speech recognition
+        # reset recording button
+        self.toggle = False  
         self.root.get_screen('training').ids.recordbutton.text = 'Press to record response'
-        #
-        self.root.current = 'loading' #switch page to loading page
-        print('[gradePrompt] starting tehread')
-        self.loading = True
-        self.thread = threading.Thread(target=self.gradePrompt)  #start a thread to grade the prompt
-        self.thread.start()
+        self.isloading = True
+        #self.thread = threading.Thread(target=self.gradePrompt)  #start a thread to grade the prompt
+        #self.thread.start()
+        self.result = self.gradePrompt()
         print("10")
         print("done")
-        self.thread.join()
-        while self.loading:
-            time.sleep(1)
         if self.result == 'not detected':
             self.root.get_screen('results').ids.resultlabel.text = 'No input was recognized. Please try again.'
             self.root.get_screen('results').ids.emotionlabel.text = ''
         else:
             self.root.get_screen('results').ids.resultlabel.text = self.result
             self.root.get_screen('results').ids.emotionlabel.text = "Emotion Detected: " + self.emotion
-        self.root.current = 'results' #switch page to results page
-
 
     def getPrompt(self): #pull random scenario from dictionary
         print("getPrompt called")
@@ -465,12 +464,8 @@ class App(MDApp):
         self.currentprompt = random_key
         print(prompts[self.currentprompt])
         self.root.get_screen('training').ids.scenariolabel.text = random_key
-        return random_key
     
     def gradePrompt(self):
-        good = False
-        okay = False  
-        bad = False
         print(prompts[self.currentprompt])
         goodans = prompts[self.currentprompt][0].split()
         okans = prompts[self.currentprompt][1].split()
@@ -483,15 +478,14 @@ class App(MDApp):
         print(emotion_labels)
         self.emotion = emotion_labels[0]['label']
         print(self.emotion)
-        if not self.emotion:
-            self.result = 'not detected'
+        if not self.emotion.isalpha():
+            return 'not detected'
         elif self.emotion in goodans:
-            self.result = '[b]Great Answer![/b]'
+            return '[b]Great Answer![/b]'
         elif self.emotion in okans:
-            self.result = '[b]Not Bad, Still Room To Improve![/b]'
+            return '[b]Not Bad, Still Room To Improve![/b]'
         else:
-            self.result = '[b]Needs Work![/b]'
-        self.loading = False
+            return '[b]Needs Work![/b]'
 
     def antispam(self):
         if self.firsttimeantispam == False:
