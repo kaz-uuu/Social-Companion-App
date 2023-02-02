@@ -151,6 +151,7 @@ WindowManager:
             title: "Training Simulator"
             pos_hint: {"center_y": 0.97}
             font_name: 'gothbold'
+            left_action_items: [["home", lambda x: app.loadHomePage()]]
         MDLabel:
             markup: True
             text: "[b]Scenario: Come Up With A Suitable Response![/b]"
@@ -200,6 +201,7 @@ WindowManager:
                 MDTopAppBar:
                     title: "Sign Language"
                     pos_hint: {"center_y": 0.97}
+                    font_name: 'gothbold'
                     left_action_items: [["home", lambda x: app.loadHomePage()]]
                 MDBoxLayout:
                     orientation: "vertical"
@@ -437,6 +439,7 @@ class App(MDApp):
         self.answer = self.root.get_screen('training').ids.showwords.text
         self.root.current = 'results' #switch page to results page
         Clock.unschedule(self.loadVideo) # stop clock from loading video frames
+        self.root.get_screen('training').ids.layout.remove_widget(self.image) #add image view to training page
         self.oncam = False
         self.capture.release() # turn off camera
         self.listen = False # stop speech recognition
