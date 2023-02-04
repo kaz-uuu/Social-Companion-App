@@ -2,7 +2,7 @@ from threading import Thread
 import kivy
 from kivy.core.window import Window
 from kivy.uix.widget import Widget
-
+#android is still a work in progress
 from Anti_Spam_Language_Correction import messagestring
 class keyboardlistener(Thread):
     

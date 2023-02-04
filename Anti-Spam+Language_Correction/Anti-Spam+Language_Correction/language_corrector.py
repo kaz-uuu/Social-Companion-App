@@ -1,6 +1,6 @@
 from pyexpat.errors import messages
 import pytesseract
-
+#language corrector still a work in progress
 class language_Corrector(object):
     def __init__(self):
         self._messagetyped = pytesseract.Output.DICT
