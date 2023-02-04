@@ -529,14 +529,14 @@ class App(MDApp):
             return '[b]Needs Work![/b]'
 
     def antispam(self):
-        if spamon == False:
-            spamon = True
+        if self.spamon == False:
+            self.spamon = True
             snacktext = "Anti-spam Engine Enabled!"
             AntiSpamEnabled = True
             self.spamthread = threading.Thread(target=startscreenrecorder)
             self.spamthread.start()
         else:
-            spamon = False
+            self.spamon = False
             snacktext = "Anti-spam Engine Disabled!"
             AntiSpamEnabled = False
 
