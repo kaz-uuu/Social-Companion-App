@@ -14,6 +14,9 @@ import itertools
 from collections import deque 
 from collections import Counter
 import mediapipe as mp
+from Anti_Spam_Language_Correction import AntiSpamEnabled
+from Anti_Spam_Language_Correction import startscreenrecorder
+#from Anti_Spam_Language_Correction import on_release
 #from jnius import autoclass
 
 ##/ KIVY PACKAGES /#############################################################
@@ -379,7 +382,7 @@ class App(MDApp):
         self.theme_cls.primary_palette = "Purple"
         self.theme_cls.material_style = "M3"
         self.theme_cls.theme_style = "Light"
-        self.firsttimeantispam = False
+        self.spamon = False
         self.oncam = False
         Window.size = (450,975) #set window size
         self.toggle = False
@@ -526,38 +529,22 @@ class App(MDApp):
             return '[b]Needs Work![/b]'
 
     def antispam(self):
-        if self.firsttimeantispam == False:
-            snackbar = Snackbar(
-                text="This is a snackbar!",
-                snackbar_x="10dp",
-                snackbar_y="10dp",
-            )
-            snackbar.size_hint_x = (
-                Window.width - (snackbar.snackbar_x * 2)
-            ) / Window.width
-            snackbar.buttons = [
-                MDFlatButton(
-                    text="UPDATE",
-                    text_color=(1, 1, 1, 1),
-                    on_release=snackbar.dismiss,
-                ),
-                MDFlatButton(
-                    text="CANCEL",
-                    text_color=(1, 1, 1, 1),
-                    on_release=snackbar.dismiss,
-                ),
-            ]
-            snackbar.open()
-            self.firsttimeantispam = True
+        if spamon == False:
+            spamon = True
+            snacktext = "Anti-spam Engine Enabled!"
+            AntiSpamEnabled = True
+            self.spamthread = threading.Thread(target=startscreenrecorder)
+            self.spamthread.start()
+        else:
+            spamon = False
+            snacktext = "Anti-spam Engine Disabled!"
+            AntiSpamEnabled = False
+
+        snackbar = Snackbar(text=snacktext, snackbar_x="10dp", snackbar_y="10dp",)
+        snackbar.size_hint_x = (Window.width - (snackbar.snackbar_x * 2)) / Window.width
+        snackbar.buttons = [MDFlatButton(text="OK", text_color=(1, 1, 1, 1),on_release=snackbar.dismiss,)]
+        snackbar.open()
     
-    # def startantispam(self): #this function starts the antispam and language corrector as a background service
-    #     antispamservice = autoclass(SERVICE_NAME)
-    #     mActivity = autoclass(u'org.kivy.android.PythonActivity').mActivity
-    #     antispamservice.start(mActivity,'')
-    #     return antispamservice
-
-    #mainsim.recognizeSpeech()
-
 
     ##/ SIGN LANGUAGE TRANSLATOR ######################################################
     def loadTranslatingPage(self):

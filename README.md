@@ -33,6 +33,8 @@ This repository contains the following contents.
 * pip3 install pandas
 * pip3 install seaborn
 * pip3 install matplotlib
+* pip3 install keyboard
+* pip3 install pynput
 
 # Demo
 ## To run Maintraining App:
