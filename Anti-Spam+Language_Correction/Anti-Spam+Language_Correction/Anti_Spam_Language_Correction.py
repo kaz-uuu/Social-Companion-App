@@ -71,7 +71,7 @@ def startscreenrecorder():
                     h, w = template.shape
                     results = cv2.matchTemplate(imagechecked, template, cv2.TM_CCOEFF_NORMED) #match templates for the copy of the image
                     locations = np.where(results >= 0.75) # threshold is used so as to ensure that detection is accurate.
-        
+
             if (list(zip(*locations[::-1])) != []): #if there are matches of the template found in the orignal image
                 
                 if platform == "win" or platform == "macosx":

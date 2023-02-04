@@ -1,6 +1,10 @@
 from pyexpat.errors import messages
 import pytesseract
-#language corrector still a work in progress
+
+#########################################################
+#### LANGUAGE CORRECTOR IS A WORK IN PROGRESS/UNSUED ####
+#########################################################
+
 class language_Corrector(object):
     def __init__(self):
         self._messagetyped = pytesseract.Output.DICT
