@@ -34,6 +34,7 @@ from kivymd.uix.button import MDFlatButton
 from kivymd.uix.label import MDLabel
 from kivy.uix.popup import Popup
 from kivy.uix.screenmanager import NoTransition
+from kivy.uix.dropdown import DropDown
 from kivyoav.delayed import delayable 
 
 ##/ EMOTION RECOGNITION PACKAGES /################################################
@@ -92,6 +93,7 @@ WindowManager:
     ResultsPage:
     LoadingPage:
     TranslatingPage:
+    SettingPage:
 
 <HomePage>:
     name: 'home'
@@ -202,6 +204,7 @@ WindowManager:
                     title: "Sign Language"
                     pos_hint: {"center_y": 0.97}
                     font_name: 'gothbold'
+                    right_action_items: [["dots-vertical", lambda x: app.setting()]]
                     left_action_items: [["home", lambda x: app.loadHomePage()]]
                 MDBoxLayout:
                     orientation: "vertical"
@@ -225,6 +228,7 @@ WindowManager:
                 MDTopAppBar:
                     title: "Sign Language Trainer"
                     pos_hint: {"center_y": 0.97}
+                    font_name: 'gothbold'
                     left_action_items: [["home", lambda x: app.loadHomePage()]]
                 MDBoxLayout:
                     id: box
@@ -305,6 +309,34 @@ WindowManager:
             halign: 'center'
             pos_hint: {'center_y': .5}
             font_size: 40
+
+<SettingPage>
+    name: 'setting'
+    MDScreen:
+        Image:
+            source: 'setting.png'
+            pos_hint: {'center_y': .8}
+        MDLabel:
+            font_name: 'gothmedium'
+            text: "Hello!"
+            font_size: 90
+            pos_hint: {'center_y': .55}
+            halign: 'center'
+        MDLabel:
+            font_name: 'gothmedium'
+            text: "Before we start using Friendly, please answer a few  questions..."
+            pos_hint: {'center_y': .5}
+            halign: 'center'
+        MDLabel:
+            font_name: 'gothmedium'
+            text: "Select Camera: "
+            pos_hint: {'center_x': 0.65,'center_y': .45}
+        MDFlatButton
+            font_name: 'gothmedium'
+            text: "Next"
+            pos_hint: {'center_x':.9}
+            on_release: app.loadHomePage()
+
 '''
 
 class HomePage(Screen):
@@ -320,6 +352,9 @@ class LoadingPage(Screen):
     pass
 
 class TranslatingPage(Screen):
+    pass
+
+class SettingPage(Screen):
     pass
 
 class WindowManager(ScreenManager):
@@ -530,8 +565,36 @@ class App(MDApp):
         self.root.current = 'translating'
 
     def loadHomePage(self):
+        if self.root.current == 'setting':
+            print(self.CAMERA)
         self.root.transition = NoTransition()
         self.root.current = 'home' 
+
+    def setting(self):
+        self.root.transition = NoTransition()
+        self.root.current = 'setting' 
+        arr = []
+        self.dropdown = DropDown()
+        for i in range(10):
+            cap = cv2.VideoCapture(i)
+            if cap is None or not cap.isOpened():
+                pass
+            else:
+                self.btn = MDFlatButton(text='Camera %d' % i, size_hint_y=None, height=44)
+                self.btn.bind(on_release=lambda btn: self.camera())
+                self.dropdown.add_widget(self.btn)
+        mainbutton = MDFlatButton(text='Choose Camera', size_hint=(None, None), pos_hint ={'x':.5, 'y':.43}, id='camera')
+        mainbutton.bind(on_release=self.dropdown.open)
+        self.dropdown.bind(on_select=lambda instance, x: setattr(mainbutton, 'text', x))
+        self.root.get_screen('setting').add_widget(mainbutton)
+
+    def camera(self):
+        self.dropdown.select(self.btn.text)
+        self.CAMERA = self.btn.text[-1]
+
+
+
+
 
     def main(self):
         if self.camera == 0: # When Camera On
