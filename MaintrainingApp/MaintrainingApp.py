@@ -91,12 +91,46 @@ colors = {
 ##/ KIVY UI CODE /#############################################################
 KV = '''
 WindowManager:
+    SettingPage:
     HomePage:
     TrainingPage:
     ResultsPage:
     LoadingPage:
     TranslatingPage:
-    SettingPage:
+
+
+<SettingPage>
+    name: 'setting'
+    MDScreen:
+        Image:
+            source: 'setting.png'
+            pos_hint: {'center_y': .8}
+        MDLabel:
+            font_name: 'gothmedium'
+            text: "Hello!"
+            font_size: 90
+            pos_hint: {'center_y': .55}
+            halign: 'center'
+        MDLabel:
+            font_name: 'gothmedium'
+            text: "Before we start using Friendly, please answer a few  questions..."
+            pos_hint: {'center_y': .5}
+            halign: 'center'
+        MDLabel:
+            font_name: 'gothmedium'
+            text: "Select Camera: "
+            pos_hint: {'center_x': 0.65,'center_y': .45}
+        MDFlatButton:
+            font_name: 'gothmedium'
+            text: "Next"
+            pos_hint: {'center_x':.9}
+            on_release: app.loadHomePage()
+        MDFlatButton:
+            id: searchCamera
+            font_name: 'gothmedium'
+            text: "Search for all cameras "
+            pos_hint: {'center_x': 0.5,'center_y': .4}
+            on_release: app.setting()
 
 <HomePage>:
     name: 'home'
@@ -313,34 +347,10 @@ WindowManager:
             pos_hint: {'center_y': .5}
             font_size: 40
 
-<SettingPage>
-    name: 'setting'
-    MDScreen:
-        Image:
-            source: 'setting.png'
-            pos_hint: {'center_y': .8}
-        MDLabel:
-            font_name: 'gothmedium'
-            text: "Hello!"
-            font_size: 90
-            pos_hint: {'center_y': .55}
-            halign: 'center'
-        MDLabel:
-            font_name: 'gothmedium'
-            text: "Before we start using Friendly, please answer a few  questions..."
-            pos_hint: {'center_y': .5}
-            halign: 'center'
-        MDLabel:
-            font_name: 'gothmedium'
-            text: "Select Camera: "
-            pos_hint: {'center_x': 0.65,'center_y': .45}
-        MDFlatButton
-            font_name: 'gothmedium'
-            text: "Next"
-            pos_hint: {'center_x':.9}
-            on_release: app.loadHomePage()
-
 '''
+
+class SettingPage(Screen):
+    pass
 
 class HomePage(Screen):
     pass
@@ -355,9 +365,6 @@ class LoadingPage(Screen):
     pass
 
 class TranslatingPage(Screen):
-    pass
-
-class SettingPage(Screen):
     pass
 
 class WindowManager(ScreenManager):
@@ -404,7 +411,7 @@ class App(MDApp):
     def startcam(self): #Load Camera
         self.image = Image() #Initialize image
         print("cam started") 
-        self.capture = cv2.VideoCapture(1) #select camera input
+        self.capture = cv2.VideoCapture(self.CAMERA) #select camera input
         Clock.schedule_interval(self.loadVideo, 1.0/30.0) #load camera view at 30 frames per second
         self.root.get_screen('training').ids.layout.add_widget(self.image) #add image view to training page
         self.oncam = True
@@ -553,9 +560,13 @@ class App(MDApp):
 
     def loadHomePage(self):
         if self.root.current == 'setting':
-            print(self.CAMERA)
-        self.root.transition = NoTransition()
-        self.root.current = 'home' 
+            try:
+                print(self.CAMERA)
+                self.root.transition = NoTransition()
+                self.root.current = 'home' 
+            except:
+                print("No Camera Selected")
+                
 
     def setting(self):
         self.root.transition = NoTransition()
@@ -568,14 +579,15 @@ class App(MDApp):
                 pass
             else:
                 self.btn = MDFlatButton(text='Camera %d' % i, size_hint_y=None, height=44)
-                self.btn.bind(on_release=lambda btn: self.camera())
+                self.btn.bind(on_press=self.cameraSelect)
                 self.dropdown.add_widget(self.btn)
         mainbutton = MDFlatButton(text='Choose Camera', size_hint=(None, None), pos_hint ={'x':.5, 'y':.43}, id='camera')
         mainbutton.bind(on_release=self.dropdown.open)
         self.dropdown.bind(on_select=lambda instance, x: setattr(mainbutton, 'text', x))
         self.root.get_screen('setting').add_widget(mainbutton)
 
-    def camera(self):
+
+    def cameraSelect(self, *args):
         self.dropdown.select(self.btn.text)
         self.CAMERA = self.btn.text[-1]
 
@@ -615,7 +627,7 @@ class App(MDApp):
 
         use_brect = True
 
-        cap = cv2.VideoCapture(0)  # Camera preparation
+        cap = cv2.VideoCapture(self.CAMERA)  # Camera preparation
         cap.set(cv2.CAP_PROP_FRAME_WIDTH, cap_width)
         cap.set(cv2.CAP_PROP_FRAME_HEIGHT, cap_height)
 
