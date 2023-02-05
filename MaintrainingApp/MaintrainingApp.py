@@ -1117,7 +1117,7 @@ class App(MDApp):
         with open(file, "r") as fin: # New SL name in slot
             for _ in range(34):
                 label.append(fin.readline().strip("\n"))      
-        label[23+slot-1] = name
+        label[5+slot-1] = name
         with open(file, "w") as fout: #logging label name
             fout.write("\n".join(label))
 

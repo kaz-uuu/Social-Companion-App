@@ -16,7 +16,7 @@ def train():
 
     # %% [markdown]
     # Set number of classes ##########################################################
-    NUM_CLASSES = 34
+    NUM_CLASSES = 16
 
     # %% [markdown]
     # Dataset reading #################################################################
