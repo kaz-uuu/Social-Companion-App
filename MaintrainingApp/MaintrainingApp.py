@@ -140,7 +140,7 @@ WindowManager:
             on_release: app.setting()
             Image:
                 source:'setting.png'
-        Image:
+        Image:   
             source: 'homepageimage.png'
             pos_hint: {'center_y': .5}
         MDRaisedButton:
@@ -181,7 +181,7 @@ WindowManager:
             pos_hint: {'center_y': .1}
         MDSwitch:
             pos_hint: {'center_y': .1}
-            on_active: app.antispam()
+            on_active: app.antispam(*args)
 
 <TrainingPage>:
     name: 'training'
@@ -539,14 +539,17 @@ class App(MDApp):
         else:
             return '[b]Needs Work![/b]'
 
-    def antispam(self):
-        if self.spamon == False:
+    def antispam(self, checkbox, value):
+        print("FUNCTION CALLED")
+        if value:
+            print("THREAD CALLED")
             self.spamon = True
             snacktext = "Anti-spam Engine Enabled!"
             AntiSpamEnabled = True
             self.spamthread = threading.Thread(target=startscreenrecorder)
             self.spamthread.start()
         else:
+            print("ANTI SPAM CLOSED")
             self.spamon = False
             snacktext = "Anti-spam Engine Disabled!"
             AntiSpamEnabled = False

