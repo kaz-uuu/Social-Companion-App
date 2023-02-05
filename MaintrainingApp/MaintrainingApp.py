@@ -120,12 +120,12 @@ WindowManager:
             font_name: 'gothmedium'
             text: "Select Camera: "
             pos_hint: {'center_x': 0.65,'center_y': .45}
-        MDFlatButton:
+        MDRaisedButton:
             font_name: 'gothmedium'
             text: "Next"
-            pos_hint: {'center_x':.9}
+            pos_hint: {'center_y':.03,'center_x':.9}
             on_release: app.loadHomePage()
-        MDFlatButton:
+        MDRectangleFlatButton:
             id: searchCamera
             font_name: 'gothmedium'
             text: "Search for all cameras "
@@ -135,6 +135,11 @@ WindowManager:
 <HomePage>:
     name: 'home'
     MDScreen:
+        MDFlatButton:
+            pos_hint: {'center_x':.05,'center_y': .95}
+            on_release: app.setting()
+            Image:
+                source:'setting.png'
         Image:
             source: 'homepageimage.png'
             pos_hint: {'center_y': .5}
@@ -241,7 +246,6 @@ WindowManager:
                     title: "Sign Language"
                     pos_hint: {"center_y": 0.97}
                     font_name: 'gothbold'
-                    right_action_items: [["dots-vertical", lambda x: app.setting()]]
                     left_action_items: [["home", lambda x: app.loadHomePage()]]
                 MDBoxLayout:
                     orientation: "vertical"
@@ -411,7 +415,7 @@ class App(MDApp):
     def startcam(self): #Load Camera
         self.image = Image() #Initialize image
         print("cam started") 
-        self.capture = cv2.VideoCapture(self.CAMERA) #select camera input
+        self.capture = cv2.VideoCapture(int(self.CAMERA)) #select camera input
         Clock.schedule_interval(self.loadVideo, 1.0/30.0) #load camera view at 30 frames per second
         self.root.get_screen('training').ids.layout.add_widget(self.image) #add image view to training page
         self.oncam = True
@@ -566,8 +570,9 @@ class App(MDApp):
                 self.root.current = 'home' 
             except:
                 print("No Camera Selected")
+        else:
+            self.root.current = 'home' 
                 
-
     def setting(self):
         self.root.transition = NoTransition()
         self.root.current = 'setting' 
@@ -578,22 +583,17 @@ class App(MDApp):
             if cap is None or not cap.isOpened():
                 pass
             else:
-                self.btn = MDFlatButton(text='Camera %d' % i, size_hint_y=None, height=44)
+                self.btn = MDRaisedButton(text='Camera %d' % i, size_hint_y=None, height=44)
                 self.btn.bind(on_press=self.cameraSelect)
                 self.dropdown.add_widget(self.btn)
-        mainbutton = MDFlatButton(text='Choose Camera', size_hint=(None, None), pos_hint ={'x':.5, 'y':.43}, id='camera')
-        mainbutton.bind(on_release=self.dropdown.open)
-        self.dropdown.bind(on_select=lambda instance, x: setattr(mainbutton, 'text', x))
-        self.root.get_screen('setting').add_widget(mainbutton)
-
+        self.mainbutton = MDFlatButton(text='Choose Camera', size_hint=(None, None), pos_hint ={'x':.5, 'y':.43}, id='camera')
+        self.mainbutton.bind(on_release=self.dropdown.open)
+        self.dropdown.bind(on_select=lambda instance, x: setattr(self.mainbutton, 'text', x))
+        self.root.get_screen('setting').add_widget(self.mainbutton)
 
     def cameraSelect(self, *args):
         self.dropdown.select(self.btn.text)
         self.CAMERA = self.btn.text[-1]
-
-
-
-
 
     def main(self):
         if self.camera == 0: # When Camera On
@@ -627,7 +627,7 @@ class App(MDApp):
 
         use_brect = True
 
-        cap = cv2.VideoCapture(self.CAMERA)  # Camera preparation
+        cap = cv2.VideoCapture(int(self.CAMERA))  # Camera preparation
         cap.set(cv2.CAP_PROP_FRAME_WIDTH, cap_width)
         cap.set(cv2.CAP_PROP_FRAME_HEIGHT, cap_height)
 
@@ -687,8 +687,8 @@ class App(MDApp):
                 self.root.get_screen('translating').ids.screen2.add_widget(self.image) #adding widget
                 Clock.schedule_interval(self.load_video, 1.0/10.0) #updating image widget per 1.0/10.0seconds (slower than previously to save procesing power)
                 self.camera = 1
-                cancleButton = MDFlatButton(text='Cancel', on_press=app.cancel)
-                self.root.get_screen('translating').ids.screen2.add_widget(cancleButton)
+                self.cancleButton = MDFlatButton(text='Cancel', on_press=app.cancel)
+                self.root.get_screen('translating').ids.screen2.add_widget(self.cancleButton)
             else:
                 self.root.get_screen('translating').ids.name.error = True #invalid input, error = true
                 self.root.get_screen('translating').ids.slot.error = True 
@@ -703,7 +703,7 @@ class App(MDApp):
             self.logging_csv(self.newLandmarks, slot, name)
             self.root.get_screen('translating').ids.name.text = ""
             self.root.get_screen('translating').ids.slot.text = ""
-            # self.training() # Train
+            self.training() # Train
             
     def cancel(self, *args):
         self.camera = 0
@@ -718,6 +718,7 @@ class App(MDApp):
     
     @delayable
     def training(self, *args):
+        self.root.get_screen('translating').ids.screen2.remove_widget(self.cancleButton)
         yield 1 
         report = keypoint.train() #goes to keypoint.py for train() function to train ml model, returns report with accuracy, precision ect. ect.
         #UI for popup

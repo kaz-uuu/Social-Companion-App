@@ -10,9 +10,9 @@ def train():
 
     # %% [markdown]
     # Specifying  path ##############################################################
-    dataset = '[NEW]signlanguage/hand-gesture-recognition-mediapipe-main/model/keypoint_classifier/keypoint.csv'
-    model_save_path = '[NEW]signlanguage/hand-gesture-recognition-mediapipe-main/model/keypoint_classifier/keypoint_classifier.hdf5'
-    tflite_save_path = '[NEW]signlanguage/hand-gesture-recognition-mediapipe-main/model/keypoint_classifier/keypoint_classifier.tflite'
+    dataset = 'signlanguage/model/keypoint_classifier/keypoint.csv'
+    model_save_path = 'signlanguage/model/keypoint_classifier/keypoint_classifier.hdf5'
+    tflite_save_path = 'signlanguage/model/keypoint_classifier/keypoint_classifier.tflite'
 
     # %% [markdown]
     # Set number of classes ##########################################################
