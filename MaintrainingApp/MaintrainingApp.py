@@ -571,6 +571,7 @@ class App(MDApp):
                 print(self.CAMERA)
                 self.root.transition = NoTransition()
                 self.root.current = 'home' 
+                self.root.get_screen('setting').remove_widget(self.mainbutton)
             except:
                 print("No Camera Selected")
         else:
