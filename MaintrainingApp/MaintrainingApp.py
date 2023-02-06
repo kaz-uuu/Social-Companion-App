@@ -549,28 +549,6 @@ class App(MDApp):
             self.spamon = True
             snacktext = "Anti-spam Engine Enabled!"
             AntiSpamEnabled = True
-            if platform == 'win': #detect the platform that this script is being run on ,and set the width and height of the image to be captured accordingly.
-                import pyautogui
-                width, height = pyautogui.size() # pyautogui is used because it is meant for windows
-                #print("width: {}, height: {}".format(width, height))
-                self.desktoptemplates = [cv2.imread('assets/win_template_img.png', 0), cv2.imread('assets/win_template_typing_img.png', 0)]
-            if platform == 'macosx':
-                print("platform detected")
-                root = Tk() #Tkinter is used for macosx. Initialise a new Tk object to access the necessary width and height information of the local mac machine
-                print("tk object initialized")
-                width = root.winfo_screenwidth() #get the width and height of the screen from the Tk object and store it in variables
-                height = root.winfo_screenheight()
-                print("width: {}, height: {}".format(width, height)) # intermittent print statement for debugging
-                self.mactemplates = [cv2.resize(cv2.imread('assets/macosx_template_img.png', 0), (0, 0), fx= (width / 2880), fy=(height / 1880))] #reading the template image for mac from the assets file using opencv, and resize the image to fit the actual dimensions on the screen(2880 x 1880)
-            #android is still a work in progress, not ready yet
-            if platform == 'android':
-                from kivy.core.window import Window
-                width = Window.size(0)
-                height = Window.size(1)
-                self.mobiletemplateimages = [cv2.resize(cv2.imread('assets/android_template_idle_img.png'), (0, 0), fx=(width * 0.875), fy=(width * 0.875))]
-                self.sendbuttontemplate = cv2.resize(cv2.imread('assets/android_send_button.png', 0), (0, 0), fx=(width * 0.125), fy=(width * 0.125))
-                #reading template images from assets, desktop templates are best stored in an array since there are two of them.
-
             self.spamthread = threading.Thread(target=startscreenrecorder)
             self.spamthread.start()
         else:
