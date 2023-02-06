@@ -22,31 +22,34 @@ def startscreenrecorder():
     print("FUNCTION CALLED SUCESSFULLY")
     global didlaunchwhatsapp
     while AntiSpamEnabled:
-        print("ANTI SPAM ENABLED SUCESSFULLY")
-        if platform == 'win': #detect the platform that this script is being run on ,and set the width and height of the image to be captured accordingly.
-            import pyautogui
-            width, height = pyautogui.size() # pyautogui is used because it is meant for windows
-            #print("width: {}, height: {}".format(width, height))
-            desktoptemplates = [cv2.imread('assets/win_template_img.png', 0), cv2.imread('assets/win_template_typing_img.png', 0)]
+        # print("ANTI SPAM ENABLED SUCESSFULLY")
+        # if platform == 'win': #detect the platform that this script is being run on ,and set the width and height of the image to be captured accordingly.
+        #     import pyautogui
+        #     width, height = pyautogui.size() # pyautogui is used because it is meant for windows
+        #     #print("width: {}, height: {}".format(width, height))
+        #     desktoptemplates = [cv2.imread('assets/win_template_img.png', 0), cv2.imread('assets/win_template_typing_img.png', 0)]
+        # if platform == 'macosx':
+        #     print("platform detected")
+        #     root = Tk() #Tkinter is used for macosx. Initialise a new Tk object to access the necessary width and height information of the local mac machine
+        #     print("tk object initialized")
+        #     width = root.winfo_screenwidth() #get the width and height of the screen from the Tk object and store it in variables
+        #     height = root.winfo_screenheight()
+        #     print("width: {}, height: {}".format(width, height)) # intermittent print statement for debugging
+        #     mactemplates = [cv2.resize(cv2.imread('assets/macosx_template_img.png', 0), (0, 0), fx= (width / 2880), fy=(height / 1880))] #reading the template image for mac from the assets file using opencv, and resize the image to fit the actual dimensions on the screen(2880 x 1880)
+
+        # #android is still a work in progress, not ready yet
+        # if platform == 'android':
+        #     from kivy.core.window import Window
+        #     width = Window.size(0)
+        #     height = Window.size(1)
+        #     mobiletemplateimages = [cv2.resize(cv2.imread('assets/android_template_idle_img.png'), (0, 0), fx=(width * 0.875), fy=(width * 0.875))]
+        #     sendbuttontemplate = cv2.resize(cv2.imread('assets/android_send_button.png', 0), (0, 0), fx=(width * 0.125), fy=(width * 0.125))
+        #     #reading template images from assets, desktop templates are best stored in an array since there are two of them.
+        if platform == 'win':
+            from MaintrainingApp import desktoptemplates
         if platform == 'macosx':
-            print("platform detected")
-            root = Tk() #Tkinter is used for macosx. Initialise a new Tk object to access the necessary width and height information of the local mac machine
-            print("tk object initialized")
-            width = root.winfo_screenwidth() #get the width and height of the screen from the Tk object and store it in variables
-            height = root.winfo_screenheight()
-            print("width: {}, height: {}".format(width, height)) # intermittent print statement for debugging
-            mactemplates = [cv2.resize(cv2.imread('assets/macosx_template_img.png', 0), (0, 0), fx= (width / 2880), fy=(height / 1880))] #reading the template image for mac from the assets file using opencv, and resize the image to fit the actual dimensions on the screen(2880 x 1880)
-
-        #android is still a work in progress, not ready yet
-        if platform == 'android':
-            from kivy.core.window import Window
-            width = Window.size(0)
-            height = Window.size(1)
-            mobiletemplateimages = [cv2.resize(cv2.imread('assets/android_template_idle_img.png'), (0, 0), fx=(width * 0.875), fy=(width * 0.875))]
-            sendbuttontemplate = cv2.resize(cv2.imread('assets/android_send_button.png', 0), (0, 0), fx=(width * 0.125), fy=(width * 0.125))
-            #reading template images from assets, desktop templates are best stored in an array since there are two of them.
-
-
+            from MaintrainingApp import mactemplates
+        
         messagecounter = 0 #counter for how many messages the user has sent in a short period of time
         didFinishTimer = False #status variables to store 
         didtypemessage = False

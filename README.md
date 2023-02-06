@@ -16,7 +16,7 @@ This repository contains the following contents.
 # Requirements (please install the following before running any programs)
 * pip3 install pyttsx3
 * pip3 install SpeechRecognition
-* pip3 install tensorflow
+* pip3 install tensorflow==2.10.0 (MAKE SURE VERSION 2.10.0 IS USED)
 * pip3 install keras-utils
 * pip3 install transformers
 * pip3 install opencv-python
