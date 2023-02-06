@@ -13,42 +13,39 @@ import pytesseract
 pytesseract.pytesseract.tesseract_cmd = r'C:\\Program Files\\Tesseract-OCR\\tesseract.exe'
 from threading import Event
 import keyboard as Keyboard
-from androidAutomate import Device
-
-
-AntiSpamEnabled = True #Check if the script has been enable
-if platform == 'win': #detect the platform that this script is being run on ,and set the width and height of the image to be captured accordingly.
-    import pyautogui
-    width, height = pyautogui.size() # pyautogui is used because it is meant for windows
-    print("width: {}, height: {}".format(width, height))
-    desktoptemplates = [cv2.imread('assets/win_template_img.png', 0), cv2.imread('assets/win_template_typing_img.png', 0)]
-if platform == 'macosx':
-    root = Tk() #Tkinter is used for macosx. Initialise a new Tk object to access the necessary width and height information of the local mac machine
-    width = root.winfo_screenwidth() #get the width and height of the screen from the Tk object and store it in variables
-    height = root.winfo_screenheight()
-    print("width: {}, height: {}".format(width, height)) # intermittent print statement for debugging
-    mactemplates = [cv2.resize(cv2.imread('assets/macosx_template_img.png', 0), (0, 0), fx= (width / 2880), fy=(height / 1880))] #reading the template image for mac from the assets file using opencv, and resize the image to fit the actual dimensions on the screen(2880 x 1880)
-
-#android is still a work in progress, not ready yet
-if platform == 'android':
-    from kivy.core.window import Window
-    width = Window.size(0)
-    height = Window.size(1)
-    mobiletemplateimages = [cv2.resize(cv2.imread('assets/android_template_idle_img.png'), (0, 0), fx=(width * 0.875), fy=(width * 0.875))]
-    sendbuttontemplate = cv2.resize(cv2.imread('assets/android_send_button.png', 0), (0, 0), fx=(width * 0.125), fy=(width * 0.125))
-#reading template images from assets, desktop templates are best stored in an array since there are two of them.
-
-
-messagecounter = 0 #counter for how many messages the user has sent in a short period of time
-messagestring = "" #string varaible to store what message the user is typing in whatsapp
-didFinishTimer = False #status variables to store 
-didtypemessage = False
+import pyautogui
 from pynput import keyboard
+AntiSpamEnabled = True #Check if the script has been enable
 def startscreenrecorder():
         global didlaunchwhatsapp
         while AntiSpamEnabled:
             #setup screen recording
-            
+            if platform == 'win': #detect the platform that this script is being run on ,and set the width and height of the image to be captured accordingly.
+                width, height = pyautogui.size() # pyautogui is used because it is meant for windows
+                print("width: {}, height: {}".format(width, height))
+                desktoptemplates = [cv2.imread('assets/win_template_img.png', 0), cv2.imread('assets/win_template_typing_img.png', 0)]
+            if platform == 'macosx':
+                root = Tk() #Tkinter is used for macosx. Initialise a new Tk object to access the necessary width and height information of the local mac machine
+                width = root.winfo_screenwidth() #get the width and height of the screen from the Tk object and store it in variables
+                height = root.winfo_screenheight()
+                print("width: {}, height: {}".format(width, height)) # intermittent print statement for debugging
+                mactemplates = [cv2.resize(cv2.imread('MaintrainingApp/macosx_template_img.png', 0), (0, 0), fx= (width / 2880), fy=(height / 1880))] #reading the template image for mac from the assets file using opencv, and resize the image to fit the actual dimensions on the screen(2880 x 1880)
+
+            #android is still a work in progress, not ready yet
+            if platform == 'android':
+                from kivy.core.window import Window
+                width = Window.size(0)
+                height = Window.size(1)
+                mobiletemplateimages = [cv2.resize(cv2.imread('assets/android_template_idle_img.png'), (0, 0), fx=(width * 0.875), fy=(width * 0.875))]
+                sendbuttontemplate = cv2.resize(cv2.imread('assets/android_send_button.png', 0), (0, 0), fx=(width * 0.125), fy=(width * 0.125))
+            #reading template images from assets, desktop templates are best stored in an array since there are two of them.
+
+
+            messagecounter = 0 #counter for how many messages the user has sent in a short period of time
+            messagestring = "" #string varaible to store what message the user is typing in whatsapp
+            didFinishTimer = False #status variables to store 
+            didtypemessage = False
+            from pynput import keyboard
             img = ImageGrab.grab(bbox=(0, 0, width, height)) #using PIllow to take an image of the user's screen
             img_np = np.array(img) #converts image to numpy array to be processed by opencv
             finalimg = cv2.cvtColor(img_np, cv2.COLOR_BGR2GRAY) #converts image to GrayScale
@@ -62,7 +59,6 @@ def startscreenrecorder():
                     locations = np.where(results >= 0.75) # threshold is used so as to ensure that detection is accurate.
             if platform == "macosx":
                 for template in mactemplates:
-                    global didtypemessage # Declare the status variable as a global variable, so that I can change this varaible from inside a function
                     h,w = template.shape #getting the height and width of the template that currently being checked for based off their "shape" property
                     results = cv2.matchTemplate(imagechecked, template, cv2.TM_CCOEFF_NORMED) #use template matching to check for a copy of the template image within the screenshot of the user's screen
                     locations = np.where(results >= 0.9) #getting the coordinates of the matches with a confidence score greater than equals to 0.9
@@ -111,16 +107,16 @@ def startscreenrecorder():
                 didlaunchwhatsapp = False
 #function to execute when a key is pressed and released(when a new letter is pressed)
 def on_release(key):
-    global messagestring #set the messagestring and didlaucnhwhatsapp variables as global variables to access them from inside the function
+    #global messagestring #set the messagestring and didlaucnhwhatsapp variables as global variables to access them from inside the function
     global didlaunchwhatsapp
 
-    #This is to update the messagestring variable according to what the user would have typed in the whatsapp 
-    if hasattr(key, 'char') and key.char != None: #if the key pressed is a character
-        messagestring += key.char #add the character pressed into the entire message string variable
-    if key == keyboard.Key.backspace: #if the user pressed backspace
-        messagestring = messagestring[:-1]#remove the last character from the messagestring
-    if key == keyboard.Key.space: #if the user pressed space
-        messagestring += " "#add a space to the messagestring
+    # #This is to update the messagestring variable according to what the user would have typed in the whatsapp 
+    # if hasattr(key, 'char') and key.char != None: #if the key pressed is a character
+    #     messagestring += key.char #add the character pressed into the entire message string variable
+    # if key == keyboard.Key.backspace: #if the user pressed backspace
+    #     messagestring = messagestring[:-1]#remove the last character from the messagestring
+    # if key == keyboard.Key.space: #if the user pressed space
+    #     messagestring += " "#add a space to the messagestring
     if key == keyboard.Key.enter:
         #if the user has pressed the enter key
         if platform == "macosx":
@@ -150,7 +146,6 @@ def on_release(key):
                     Keyboard.unhook_all() #unhook the enter key and allow the user to send messages again
                     break
                 timeleft -= 0.1 #remove 0.1 seconds from the timer variable
-    print(messagestring)
     
     
 
