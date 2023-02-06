@@ -105,9 +105,6 @@ WindowManager:
 <SettingPage>
     name: 'setting'
     MDScreen:
-        Image:
-            source: 'setting.png'
-            pos_hint: {'center_y': .8}
         MDLabel:
             font_name: 'gothmedium'
             text: "Hello!"
@@ -134,6 +131,11 @@ WindowManager:
             text: "Search for all cameras "
             pos_hint: {'center_x': 0.5,'center_y': .4}
             on_release: app.setting()
+        MDRectangleFlatButton:
+            id: btnExit
+            text: "Exit"
+            pos_hint: {'center_y':.03,'center_x':.1}
+            on_press: app.stop() 
 
 <HomePage>:
     name: 'home'
@@ -580,27 +582,30 @@ class App(MDApp):
         else:
             self.root.current = 'home' 
                 
-    def setting(self):
+    def setting(self): #Setting Camera
+        try: 
+            self.root.get_screen('setting').remove_widget(self.mainbutton) #remove previous camera selection
+        except:
+            pass
         self.root.transition = NoTransition()
         self.root.current = 'setting' 
         arr = []
-        self.dropdown = DropDown()
-        for i in range(10):
-            cap = cv2.VideoCapture(i)
+        self.dropdown = DropDown() #dropdown
+        for i in range(10): #testing camera 1 to 10
+            cap = cv2.VideoCapture(i) 
             if cap is None or not cap.isOpened():
                 pass
-            else:
+            else:  #If camera exists
                 self.btn = MDRaisedButton(text='Camera %d' % i, size_hint_y=None, height=44)
-                self.btn.bind(on_press=self.cameraSelect)
+                self.btn.bind(on_release=lambda btn: (self.dropdown.select(btn.text), app.cameraSelect(btn)))
                 self.dropdown.add_widget(self.btn)
         self.mainbutton = MDFlatButton(text='Choose Camera', size_hint=(None, None), pos_hint ={'x':.5, 'y':.43}, id='camera')
         self.mainbutton.bind(on_release=self.dropdown.open)
         self.dropdown.bind(on_select=lambda instance, x: setattr(self.mainbutton, 'text', x))
         self.root.get_screen('setting').add_widget(self.mainbutton)
 
-    def cameraSelect(self, *args):
-        self.dropdown.select(self.btn.text)
-        self.CAMERA = self.btn.text[-1]
+    def cameraSelect(self, btn, *args): #Selecting camera
+        self.CAMERA = btn.text[-1]
 
     def main(self):
         if self.camera == 0: # When Camera On
