@@ -1124,7 +1124,7 @@ class App(MDApp):
         label = []
         file = "signlanguage/model/keypoint_classifier/keypoint_classifier_label.csv"
         with open(file, "r") as fin: # New SL name in slot
-            for _ in range(34):
+            for _ in range(16):
                 label.append(fin.readline().strip("\n"))      
         label[5+slot-1] = name
         with open(file, "w") as fout: #logging label name
