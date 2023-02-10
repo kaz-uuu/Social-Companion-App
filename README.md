@@ -6,8 +6,8 @@ Proposed Solution: A companion app aimed to cultivate better social skills and c
 
 The proposed companion app has these 3 main features:
 1. A conversation simulator for those who can verbally communicate - comes up with conversation prompts and analyzes the user's reply using facial emotion recognition (not currently used for grading due to innacuracy) and natural language processing (sentiment analysis). [@kaz-uuu](https://github.com/kaz-uuu)
-2. A training simulator for those who cannot verbally communicate - teaching appropriate sign languages, sign language decoder and a function to create new and ;unique; sign language customized for each person (Yanzhao)
-3. A spam limter (Kiran)
+2. A training simulator for those who cannot verbally communicate - teaching appropriate sign languages, sign language decoder and a function to create new and unique sign language customized for each person [@yanzhaoliu](https://github.com/yanzhaoliu)
+3. A spam limter [@TYPHOON345](https://github.com/TYPHOON345)
 
 This repository contains the following contents.
 * Sign Language Program
