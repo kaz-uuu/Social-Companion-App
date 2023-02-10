@@ -13,7 +13,7 @@ This repository contains the following contents.
 * Sign Language Program
 * Maintraining App
 
-<img src="straits time feature.png" width='200'>
+<center><img src="straits time feature.png" width='200'></center>
 
 # Requirements (please install the following before running any programs)
 * pip3 install pyttsx3
