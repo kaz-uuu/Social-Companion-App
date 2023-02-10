@@ -5,9 +5,9 @@ Problem statement: *How might we allow people with Intellectual Disability (ID) 
 Proposed Solution: A companion app aimed to cultivate better social skills and correct behavior in those with IDs. 
 
 The proposed companion app has these 3 main features:
-1. A conversation simulator for those who can verbally communicate - comes up with conversation prompts and analyzes the user's reply using facial emotion recognition (not currently used for grading due to innacuracy) and natural language processing (sentiment analysis). [@kaz-uuu](https://github.com/kaz-uuu)
-2. A training simulator for those who cannot verbally communicate - teaching appropriate sign languages, sign language decoder and a function to create new and unique sign language customized for each person [@yanzhaoliu](https://github.com/yanzhaoliu)
-3. A spam limter [@TYPHOON345](https://github.com/TYPHOON345)
+1. A conversation simulator for those who can verbally communicate - comes up with conversation prompts and analyzes the user's reply using facial emotion recognition (not currently used for grading due to innacuracy) and natural language processing (sentiment analysis) - [@kaz-uuu](https://github.com/kaz-uuu)
+2. A training simulator for those who cannot verbally communicate - teaching appropriate sign languages, sign language decoder and a function to create new and unique sign language customized for each person - [@yanzhaoliu](https://github.com/yanzhaoliu)
+3. A background script that prevents the user from spamming on Whatsapp - [@TYPHOON345](https://github.com/TYPHOON345)
 
 This repository contains the following contents.
 * Sign Language Program
@@ -44,11 +44,8 @@ Our Anti-Spam Engine featured in The Straits Times
 
 # Demo
 ## To run Maintraining App:
-1. Navigate to MaintrainingApp Directory<br>e.g. cd /Users/liuyanzhao/Documents/GitHub/Tech4Good/MaintrainingApp
-2. python3 MaintrainingApp.py
-## Using Anti-spam engine
-1. Navigate to Anti-Spam+Language_Correction Directory<br>/Users/liuyanzhao/Documents/GitHub/Tech4Good/Anti-Spam+Language_Correction/Anti-Spam+Language_Correction
-2. python3 Anti_Spam_Language_Correction.py<br>note that this only works on mac/windows
+1. Navigate to MaintrainingApp Directory<br> eg. '''cd /Users/username/Documents/GitHub/Tech4Good/MaintrainingApp'''
+2. Run '''python3 MaintrainingApp.py'''
 
 # Directory
 <pre>
