@@ -13,7 +13,9 @@ This repository contains the following contents.
 * Sign Language Program
 * Maintraining App
 
-<center><img src="straits time feature.png" width='200'></center>
+<<img src="straits time feature.png" width='200'>
+
+Our Anti-Spam Engine featured in The Straits Times
 
 # Requirements (please install the following before running any programs)
 * pip3 install pyttsx3

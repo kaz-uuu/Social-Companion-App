@@ -27,7 +27,7 @@ def startscreenrecorder():
                 width = screen.width
                 height = screen.height
                 print("width: {}, height: {}".format(width, height)) # intermittent print statement for debugging
-                mactemplates = [cv2.resize(cv2.imread('macosx_template_img.png', 0), (0, 0), fx= (width / 2880), fy=(height / 1880))] #reading the template image for mac from the assets file using opencv, and resize the image to fit the actual dimensions on the screen(2880 x 1880)
+                mactemplates = [cv2.resize(cv2.imread('macosx_template_img.png', 0), (0, 0), fx= ((width / 2880) * (width / 1440)), fy=((height / 1880) * (height / 900)))] #reading the template image for mac from the assets file using opencv, and resize the image to fit the actual dimensions on the screen(2880 x 1880)
 
             #android is still a work in progress, not ready yet
             if platform == 'android':
@@ -59,7 +59,7 @@ def startscreenrecorder():
                 for template in mactemplates:
                     h,w = template.shape #getting the height and width of the template that currently being checked for based off their "shape" property
                     results = cv2.matchTemplate(imagechecked, template, cv2.TM_CCOEFF_NORMED) #use template matching to check for a copy of the template image within the screenshot of the user's screen
-                    locations = np.where(results >= 0.9) #getting the coordinates of the matches with a confidence score greater than equals to 0.9
+                    locations = np.where(results >= 0.75) #getting the coordinates of the matches with a confidence score greater than equals to 0.9
             #android is still a work in progress
             if platform == 'android':
                 for template in mobiletemplateimages: 
