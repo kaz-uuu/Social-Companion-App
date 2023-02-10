@@ -13,6 +13,8 @@ This repository contains the following contents.
 * Sign Language Program
 * Maintraining App
 
+<img src="straits time feature.png" alt="Alt text" title="Optional title">
+
 # Requirements (please install the following before running any programs)
 * pip3 install pyttsx3
 * pip3 install SpeechRecognition
