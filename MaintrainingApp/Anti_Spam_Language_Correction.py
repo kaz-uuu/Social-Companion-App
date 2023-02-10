@@ -2,7 +2,7 @@
 #note: this script runs in the background, and only works on mac or windows
 import threading
 from time import time
-from tkinter import Tk
+from screeninfo import get_monitors
 from urllib.parse import urlencode
 from PIL import ImageGrab
 import kivy #importing necessary libraries for OCR and screen recording
@@ -23,11 +23,11 @@ def startscreenrecorder():
                 print("width: {}, height: {}".format(width, height))
                 desktoptemplates = [cv2.imread('assets/win_template_img.png', 0), cv2.imread('assets/win_template_typing_img.png', 0)]
             if platform == 'macosx':
-                root = Tk() #Tkinter is used for macosx. Initialise a new Tk object to access the necessary width and height information of the local mac machine
-                width = root.winfo_screenwidth() #get the width and height of the screen from the Tk object and store it in variables
-                height = root.winfo_screenheight()
+                screen = get_monitors()[0]
+                width = screen.width
+                height = screen.height
                 print("width: {}, height: {}".format(width, height)) # intermittent print statement for debugging
-                mactemplates = [cv2.resize(cv2.imread('MaintrainingApp/macosx_template_img.png', 0), (0, 0), fx= (width / 2880), fy=(height / 1880))] #reading the template image for mac from the assets file using opencv, and resize the image to fit the actual dimensions on the screen(2880 x 1880)
+                mactemplates = [cv2.resize(cv2.imread('macosx_template_img.png', 0), (0, 0), fx= (width / 2880), fy=(height / 1880))] #reading the template image for mac from the assets file using opencv, and resize the image to fit the actual dimensions on the screen(2880 x 1880)
 
             #android is still a work in progress, not ready yet
             if platform == 'android':

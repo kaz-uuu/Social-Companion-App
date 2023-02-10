@@ -27,7 +27,7 @@ This repository contains the following contents.
 * pip3 install collection
 * pip3 install numpy
 * pip3 install mediapipe
-* pip3 install kivy
+* pip3 install "kivy[base]"
 * pip3 install kivyoav
 * pip3 install scikit-learn
 * pip3 install pandas
@@ -35,6 +35,8 @@ This repository contains the following contents.
 * pip3 install matplotlib
 * pip3 install keyboard
 * pip3 install pynput
+* pip3 install pyautogui
+* pip3 install screeninfo
 
 # Demo
 ## To run Maintraining App:
