@@ -9,11 +9,14 @@ import kivy #importing necessary libraries for OCR and screen recording
 from kivy.utils import platform
 import numpy as np
 import cv2
+import MTM
 from threading import Event
 import keyboard as Keyboard
 import pyautogui
 from pynput import keyboard
+import imutils
 AntiSpamEnabled = True #Check if the script has been enable
+didlaunchwhatsapp = False
 def startscreenrecorder():
         global didlaunchwhatsapp
         while AntiSpamEnabled:
@@ -27,7 +30,7 @@ def startscreenrecorder():
                 width = screen.width
                 height = screen.height
                 print("width: {}, height: {}".format(width, height)) # intermittent print statement for debugging
-                mactemplates = [cv2.resize(cv2.imread('macosx_template_img.png', 0), (0, 0), fx= ((width / 2880) * (width / 1440)), fy=((height / 1880) * (height / 900)))] #reading the template image for mac from the assets file using opencv, and resize the image to fit the actual dimensions on the screen(2880 x 1880)
+                mactemplates = [cv2.imread('macosx_template_img.png', 0)] #reading the template image for mac from the assets file using opencv, and resize the image to fit the actual dimensions on the screen(2880 x 1880)
 
             #android is still a work in progress, not ready yet
             if platform == 'android':
@@ -52,19 +55,35 @@ def startscreenrecorder():
             imagechecked = finalimg.copy() # take a copy of the image from the screen recorder
             if platform == 'win': #if this script is being run on a desktop/laptop, get the width and height of the template image
                 for template in desktoptemplates: 
+                    template = cv2.Canny(template, 50, 200)
                     h, w = template.shape
-                    results = cv2.matchTemplate(imagechecked, template, cv2.TM_CCOEFF_NORMED) #match templates for the copy of the image, TM_CCOEFFF_NORMED is the algorithm of choice as it has been tested by me to be the most reliable 
-                    locations = np.where(results >= 0.75) # threshold is used so as to ensure that detection is accurate.
+                    for scale in np.linspace(0.2, 1.0, 20)[::-1]:
+                        resized = imutils.resize(imagechecked, width=int(imagechecked.shape[1] * scale))
+                        r = imagechecked.shape[1] / float(resized.shape[1])
+
+                        if resized.shape[0] < h or resized.shape[1] < w:
+                            break
+                        edged = cv2.Canny(resized, 50, 200)
+                        results = cv2.matchTemplate(edged, template, cv2.TM_CCOEFF_NORMED) #match templates for the copy of the image, TM_CCOEFFF_NORMED is the algorithm of choice as it has been tested by me to be the most reliable 
+                        locations = np.where(results >= 0.75) # threshold is used so as to ensure that detection is accurate.
             if platform == "macosx":
                 for template in mactemplates:
-                    h,w = template.shape #getting the height and width of the template that currently being checked for based off their "shape" property
-                    results = cv2.matchTemplate(imagechecked, template, cv2.TM_CCOEFF_NORMED) #use template matching to check for a copy of the template image within the screenshot of the user's screen
-                    locations = np.where(results >= 0.75) #getting the coordinates of the matches with a confidence score greater than equals to 0.9
+                    template = cv2.Canny(template, 50, 200)
+                    h,w = template.shape[:2] #getting the height and width of the template that currently being checked for based off their "shape" property
+                    for scale in np.linspace(0.2, 1.0, 20)[::-1]:
+                        resized = imutils.resize(imagechecked, width = int(imagechecked.shape[1] * scale))
+                        r = imagechecked.shape[1] / float(resized.shape[1])
+
+                        if resized.shape[0] < h or resized.shape[1] < w:
+                            break
+                        edged = cv2.Canny(resized, 50, 200)
+                        results = cv2.matchTemplate(edged, template, cv2.TM_CCOEFF) #use template matching to check for a copy of the template image within the screenshot of the user's screen
+                        locations = np.where(results >= 0.75) #getting the coordinates of the matches with a confidence score greater than equals to 0.9
             #android is still a work in progress
             if platform == 'android':
                 for template in mobiletemplateimages: 
                     h, w = template.shape
-                    results = cv2.matchTemplate(imagechecked, template, cv2.TM_CCOEFF_NORMED) #match templates for the copy of the image
+                    results = cv2.matchTemplate(imagechecked, template, cv2.TM_CCOEFF) #match templates for the copy of the image
                     locations = np.where(results >= 0.75) # threshold is used so as to ensure that detection is accurate.
         
             if (list(zip(*locations[::-1])) != []): #if there are matches of the template found in the orignal image
