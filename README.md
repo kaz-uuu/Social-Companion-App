@@ -1,4 +1,4 @@
-# Tech4Good
+# Social Companion App
 
 Problem statement: *How might we allow people with Intellectual Disability (ID) to correct & learn socially acceptable ways to communicate such that he/she can express his/her thoughts & feelings without offending others?*
 
