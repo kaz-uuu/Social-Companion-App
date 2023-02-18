@@ -569,7 +569,7 @@ class App(MDApp):
     def loadTranslatingPage(self):
         self.root.transition = NoTransition()
         self.root.current = 'translating'
-
+    
     def loadHomePage(self):
         if self.root.current == 'setting':
             try:
@@ -580,7 +580,27 @@ class App(MDApp):
             except:
                 print("No Camera Selected")
         else:
-            self.root.current = 'home' 
+            if self.root.current == 'translating':
+                self.camera = 0
+                self.key = 1
+                Clock.unschedule(self.load_video)
+                Clock.schedule_once(self.load_video, -1) #update image widget one last time before next frame
+                Clock.schedule_once(self.keyReseter)
+                self.root.get_screen('translating').ids.screen1.remove_widget(self.image)
+                self.root.get_screen('translating').ids.screen2.remove_widget(self.image)
+                self.root.get_screen('training').ids.layout.remove_widget(self.image)
+                try:
+                    self.root.get_screen('translating').ids.screen2.remove_widget(self.cancleButton)
+                except:
+                    pass
+                self.root.current = 'home' 
+            else:
+                Clock.unschedule(self.loadVideo) # stop clock from loading video frames
+                self.root.get_screen('training').ids.layout.remove_widget(self.image) #add image view to training page
+                self.oncam = False
+                self.capture.release() # turn off camera
+                self.listen = False # stop speech recognition 
+                self.root.current = 'home' 
                 
     def setting(self): #Setting Camera
         try: 
