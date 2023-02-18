@@ -9,7 +9,6 @@ import kivy #importing necessary libraries for OCR and screen recording
 from kivy.utils import platform
 import numpy as np
 import cv2
-import MTM
 from threading import Event
 import keyboard as Keyboard
 import pyautogui

@@ -41,6 +41,7 @@ Our Anti-Spam Engine featured in The Straits Times
 * pip3 install pynput
 * pip3 install pyautogui
 * pip3 install screeninfo
+* pip3 install imutils
 
 # Demo
 ## To run Maintraining App:
