@@ -9,7 +9,6 @@ import kivy #importing necessary libraries for OCR and screen recording
 from kivy.utils import platform
 import numpy as np
 import cv2
-import MTM
 from threading import Event
 import keyboard as Keyboard
 import pyautogui
@@ -91,29 +90,6 @@ def startscreenrecorder():
                 if platform == "win" or platform == "macosx":
                     listener = keyboard.Listener(on_release=on_release) #start a keylogger on a seperate thread to track what the user is typing, and if he has sent a message etc
                 #android is still a work in progress
-                if platform == "android":
-                    from AndroidKeyboardListener import keyboardlistener
-                    listener = keyboardlistener()
-                    buttonresults = cv2.matchTemplate(imagechecked, sendbuttontemplate, cv2.TM_CCOEFF_NORMED)
-                    buttonlocations = np.where(buttonresults > 0.8)
-                    if (list(zip(*buttonlocations[::-1])) != []):
-                        h, w = sendbuttontemplate.shape
-                        textfieldbox = ImageGrab.grab(bbox=(buttonlocations[0] + w, buttonlocations[1] + h, (width * 0.87), h))
-                        textfieldnp = np.array(textfieldbox)
-                        finaltxtfieldimg = cv2.cvtColor(textfieldnp, cv2.COLOR_BGR2RGB)
-                        messagestring = pytesseract.image_to_string(finaltxtfieldimg)
-                        if messagestring != "|Message" or messagestring != "Message":
-                            didtypemessage = True
-                        if (messagestring == "|Message" or messagestring == "Message") and didtypemessage:
-                            didtypemessage = False
-                            import time
-                            timeleft = 10
-                            while timeleft:
-                                time.sleep(0.1)
-                                if timeleft <= 0:
-
-                                    break
-                                timeleft -= 0.1
                         
                 #start and join the keyboard listener thread        
                 listener.daemon = True
@@ -166,7 +142,7 @@ def on_release(key):
     
     
 
-    if not didlaunchwhatsapp: #stop the thread if whatsapp isn't detected
+    if not didlaunchwhatsapp or not AntiSpamEnabled: #stop the thread if whatsapp isn't detected
         return False
 
 #function for checking the message for toxicity, still work in progress
