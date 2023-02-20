@@ -14,6 +14,9 @@ import keyboard as Keyboard
 import pyautogui
 from pynput import keyboard
 import imutils
+
+## ANTI-SPAM ENGINE ########################################################
+###################### WRITTEN BY KIRAN ####################################
 AntiSpamEnabled = True #Check if the script has been enable
 didlaunchwhatsapp = False
 def startscreenrecorder():

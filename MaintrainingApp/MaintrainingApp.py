@@ -379,7 +379,10 @@ class TranslatingPage(Screen):
 class WindowManager(ScreenManager):
     pass
 
-##/ PROMPT DATABASE /########################################################
+## CONVESATION SIMULATOR ###################################################
+###################### WRITTEN BY KAZU #####################################
+ 
+##/ PROMPT DATABASE /######################################################
 prompts = { #prompt format: "prompt":['good emotions','okay emotions']
             "I recently got a job offer for my dream job!"
             :['admiration curiosity excitement joy caring optimism hopeful','neutral'],
@@ -389,7 +392,7 @@ prompts = { #prompt format: "prompt":['good emotions','okay emotions']
             :['caring curiousity optimism admiration approval amusement','desire']
             }
 
-##/ MAIN CLASS /#############################################################
+##/ MAIN CLASS /###########################################################
 class App(MDApp): 
 
     # INITIALIZATION ######################################################
@@ -506,8 +509,8 @@ class App(MDApp):
         self.result = self.gradePrompt()
         print("10")
         print("done")
-        if self.result == 'not detected':
-            self.root.get_screen('results').ids.resultlabel.text = 'No input was recognized. Please try again.'
+        if self.result == 'not detected': # change text on results page accordingly
+            self.root.get_screen('results').ids.resultlabel.text = 'No input was recognized. Please try again.' 
             self.root.get_screen('results').ids.emotionlabel.text = ''
         else:
             self.root.get_screen('results').ids.resultlabel.text = self.result
@@ -516,9 +519,9 @@ class App(MDApp):
     def getPrompt(self): #pull random scenario from dictionary
         print("getPrompt called")
         print("generating random key............")
-        random_key = random.sample(prompts.keys(), 1)[0]
+        random_key = random.sample(prompts.keys(), 1)[0] # choose a random prompt from the dictionary
         print(random_key)
-        self.currentprompt = random_key
+        self.currentprompt = random_key # assign prompt to class so it can be accessed from within other functions
         print(prompts[self.currentprompt])
         self.root.get_screen('training').ids.scenariolabel.text = random_key
     
@@ -544,28 +547,28 @@ class App(MDApp):
         else:
             return '[b]Needs Work![/b]'
 
-    def antispam(self, checkbox, value):
+    def antispam(self, checkbox, value): # backend code for anti-spam engine toggle switch
         print("FUNCTION CALLED")
         if value:
             print("value is true")
-            self.spamon = True
-            snacktext = "Anti-spam Engine Enabled!"
-            AntiSpamEnabled = True
+            self.spamon = True 
+            snacktext = "Anti-spam Engine Enabled!" # set snackbar text
+            AntiSpamEnabled = True # initialize variable imported from kiran's code needed to start engine
             self.spamthread = threading.Thread(target=startscreenrecorder)
-            self.spamthread.start()
+            self.spamthread.start() # start engine as another thread
         else:
             print("ANTI SPAM CLOSED")
             self.spamon = False
-            snacktext = "Anti-spam Engine Disabled!"
-            AntiSpamEnabled = False
+            snacktext = "Anti-spam Engine Disabled!" 
+            AntiSpamEnabled = False 
 
         snackbar = Snackbar(text=snacktext, snackbar_x="10dp", snackbar_y="10dp",)
         snackbar.size_hint_x = (Window.width - (snackbar.snackbar_x * 2)) / Window.width
         snackbar.buttons = [MDFlatButton(text="OK", text_color=(1, 1, 1, 1),on_release=snackbar.dismiss,)]
         snackbar.open()
     
-
-    ##/ SIGN LANGUAGE TRANSLATOR ######################################################
+## SIGN LANGUAGE TRANSLATOR ###################################################
+###################### WRITTEN BY YANZHAO #####################################
     def loadTranslatingPage(self):
         self.root.transition = NoTransition()
         self.root.current = 'translating'
