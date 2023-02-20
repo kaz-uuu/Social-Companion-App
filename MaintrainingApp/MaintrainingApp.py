@@ -591,15 +591,10 @@ class App(MDApp):
                 try: 
                     self.root.get_screen('translating').ids.screen1.remove_widget(self.image)
                     self.root.get_screen('translating').ids.translation.text = ""
+                    self.root.get_screen('translating').ids.screen2.remove_widget(self.cancleButton)
+                    self.root.get_screen('translating').ids.screen2.remove_widget(self.image)
                 except:
-                    try:
-                        self.root.get_screen('training').ids.layout.remove_widget(self.image)
-                    except: 
-                        try:
-                            self.root.get_screen('translating').ids.screen2.remove_widget(self.cancleButton)
-                            self.root.get_screen('translating').ids.screen2.remove_widget(self.image)
-                        except:
-                            pass
+                    self.root.get_screen('training').ids.layout.remove_widget(self.image)
                 self.root.current = 'home' 
             else:
                 Clock.unschedule(self.loadVideo) # stop clock from loading video frames
