@@ -252,16 +252,16 @@ WindowManager:
                     pos_hint: {"center_y": 0.97}
                     font_name: 'gothbold'
                     left_action_items: [["home", lambda x: app.loadHomePage()]]
-                MDBoxLayout:
-                    orientation: "vertical"
-                    pos_hint: {'center_y':0.1}
-                    adaptive_height: True
-                    MDRectangleFlatIconButton:
-                        id: mdbu
-                        text: "on/off camera"
-                        on_press: app.main()
-                        adaptive_size: True
-                        pos_hint: {"center_x": .5, "center_y": .5}
+                MDRectangleFlatIconButton:
+                    id: mdbu
+                    text: "on/off camera"
+                    on_press: app.main()
+                    adaptive_size: True
+                    pos_hint: {"center_x": .5, "center_y": .15}
+                MDLabel:
+                    id: translation
+                    text: ""
+                    pos_hint: {"center_x": .97, "center_y": .3}
         
             MDBottomNavigationItem:
                 id: screen2
@@ -569,7 +569,7 @@ class App(MDApp):
     def loadTranslatingPage(self):
         self.root.transition = NoTransition()
         self.root.current = 'translating'
-
+    
     def loadHomePage(self):
         if self.root.current == 'setting':
             try:
@@ -580,7 +580,28 @@ class App(MDApp):
             except:
                 print("No Camera Selected")
         else:
-            self.root.current = 'home' 
+            if self.root.current == 'translating':
+                self.camera = 0
+                self.key = 1
+                Clock.unschedule(self.load_video)
+                Clock.schedule_once(self.load_video, -1) #update image widget one last time before next frame
+                Clock.schedule_once(self.keyReseter)
+                self.root.get_screen('translating').ids.screen1.remove_widget(self.image)
+                self.root.get_screen('translating').ids.screen2.remove_widget(self.image)
+                self.root.get_screen('training').ids.layout.remove_widget(self.image)
+                self.root.get_screen('translating').ids.translation.text = ""
+                try:
+                    self.root.get_screen('translating').ids.screen2.remove_widget(self.cancleButton)
+                except:
+                    pass
+                self.root.current = 'home' 
+            else:
+                Clock.unschedule(self.loadVideo) # stop clock from loading video frames
+                self.root.get_screen('training').ids.layout.remove_widget(self.image) #add image view to training page
+                self.oncam = False
+                self.capture.release() # turn off camera
+                self.listen = False # stop speech recognition 
+                self.root.current = 'home' 
                 
     def setting(self): #Setting Camera
         try: 
@@ -727,6 +748,7 @@ class App(MDApp):
         self.newLandmarks = []
         self.root.get_screen('translating').ids.name.text = ""
         self.root.get_screen('translating').ids.slot.text = ""
+        self.root.get_screen('translating').ids.screen2.remove_widget(self.cancleButton)
     
     @delayable
     def training(self, *args):
@@ -742,6 +764,7 @@ class App(MDApp):
         popup.open() #Open pop-up
 
     def keyReseter(self, *args):
+        self.root.get_screen('translating').ids.translation.text = ""
         self.key = 0
 
     def load_video(self, *args):
@@ -823,9 +846,12 @@ class App(MDApp):
                     "Hand Motion Detected"
                     # point_history_classifier_labels[most_common_fg_id[0][0]],
                 )
+                self.root.get_screen('translating').ids.translation.text = keypoint_classifier_labels[hand_sign_id]
         else:
+            self.root.get_screen('translating').ids.translation.text = ""
             point_history.append([0, 0])
-
+        
+        
         debug_image = self.draw_point_history(debug_image, point_history)
         debug_image = self.draw_info(debug_image, fps, mode, number)
 
