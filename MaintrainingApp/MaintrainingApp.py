@@ -581,19 +581,25 @@ class App(MDApp):
                 print("No Camera Selected")
         else:
             if self.root.current == 'translating':
-                self.camera = 0
-                self.key = 1
-                Clock.unschedule(self.load_video)
-                Clock.schedule_once(self.load_video, -1) #update image widget one last time before next frame
-                Clock.schedule_once(self.keyReseter)
-                self.root.get_screen('translating').ids.screen1.remove_widget(self.image)
-                self.root.get_screen('translating').ids.screen2.remove_widget(self.image)
-                self.root.get_screen('training').ids.layout.remove_widget(self.image)
-                self.root.get_screen('translating').ids.translation.text = ""
-                try:
-                    self.root.get_screen('translating').ids.screen2.remove_widget(self.cancleButton)
+                
+                if self.camera == 1:
+                    self.camera = 0
+                    self.key = 1
+                    Clock.unschedule(self.load_video)
+                    Clock.schedule_once(self.load_video, -1) #update image widget one last time before next frame
+                    Clock.schedule_once(self.keyReseter)
+                try: 
+                    self.root.get_screen('translating').ids.screen1.remove_widget(self.image)
+                    self.root.get_screen('translating').ids.translation.text = ""
                 except:
-                    pass
+                    try:
+                        self.root.get_screen('training').ids.layout.remove_widget(self.image)
+                    except: 
+                        try:
+                            self.root.get_screen('translating').ids.screen2.remove_widget(self.cancleButton)
+                            self.root.get_screen('translating').ids.screen2.remove_widget(self.image)
+                        except:
+                            pass
                 self.root.current = 'home' 
             else:
                 Clock.unschedule(self.loadVideo) # stop clock from loading video frames
