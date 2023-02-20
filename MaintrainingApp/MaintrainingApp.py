@@ -570,77 +570,79 @@ class App(MDApp):
 ## SIGN LANGUAGE TRANSLATOR ###################################################
 ###################### WRITTEN BY YANZHAO #####################################
     def loadTranslatingPage(self):
-        self.root.transition = NoTransition()
-        self.root.current = 'translating'
+        self.root.transition = NoTransition() #no transition
+        self.root.current = 'translating' #load translating page
+    
     
     def loadHomePage(self):
-        if self.root.current == 'setting':
+        if self.root.current == 'setting': #if the current page is in setting,
             try:
-                print(self.CAMERA)
-                self.root.transition = NoTransition()
-                self.root.current = 'home' 
-                self.root.get_screen('setting').remove_widget(self.mainbutton)
+                print(self.CAMERA)  #If camera is not selected, this returns an error and exits try
+                self.root.transition = NoTransition()#No transition
+                self.root.current = 'home' #go homepage
+                self.root.get_screen('setting').remove_widget(self.mainbutton) #remove previous camera mainbutton
             except:
-                print("No Camera Selected")
+                print("No Camera Selected") #Error, no camera selected
         else:
-            if self.root.current == 'translating':
+            if self.root.current == 'translating': #when in translating page
                 
-                if self.camera == 1:
-                    self.camera = 0
-                    self.key = 1
-                    Clock.unschedule(self.load_video)
+                if self.camera == 1: #switch off camera
+                    self.camera = 0 #switch off camera
+                    self.key = 1 #switch off camera
+                    Clock.unschedule(self.load_video) #switch off camera
                     Clock.schedule_once(self.load_video, -1) #update image widget one last time before next frame
-                    Clock.schedule_once(self.keyReseter)
+                    Clock.schedule_once(self.keyReseter) #switch off camera
                 try: 
-                    self.root.get_screen('translating').ids.screen1.remove_widget(self.image)
-                    self.root.get_screen('translating').ids.translation.text = ""
-                    self.root.get_screen('translating').ids.screen2.remove_widget(self.cancleButton)
-                    self.root.get_screen('translating').ids.screen2.remove_widget(self.image)
+                    self.root.get_screen('translating').ids.screen1.remove_widget(self.image) #switch off camera on translating page
+                    self.root.get_screen('translating').ids.translation.text = "" #no subtitle on translating page
+                    self.root.get_screen('translating').ids.screen2.remove_widget(self.cancleButton) #remove cancel button on training page
+                    self.root.get_screen('translating').ids.screen2.remove_widget(self.image) #switch off camera on training page
                 except:
-                    self.root.get_screen('training').ids.layout.remove_widget(self.image)
-                self.root.current = 'home' 
+                    self.root.get_screen('training').ids.layout.remove_widget(self.image)  #remove camera on kazu's training page
+                self.root.current = 'home' #go homepage
             else:
                 Clock.unschedule(self.loadVideo) # stop clock from loading video frames
                 self.root.get_screen('training').ids.layout.remove_widget(self.image) #add image view to training page
                 self.oncam = False
                 self.capture.release() # turn off camera
                 self.listen = False # stop speech recognition 
-                self.root.current = 'home' 
-                
+                self.root.current = 'home' #go homepage
+
+
     def setting(self): #Setting Camera
         try: 
             self.root.get_screen('setting').remove_widget(self.mainbutton) #remove previous camera selection
         except:
             pass
-        self.root.transition = NoTransition()
-        self.root.current = 'setting' 
-        arr = []
+        self.root.transition = NoTransition() #No transtion
+        self.root.current = 'setting' #Go setting page
         self.dropdown = DropDown() #dropdown
         for i in range(10): #testing camera 1 to 10
             cap = cv2.VideoCapture(i) 
             if cap is None or not cap.isOpened():
                 pass
             else:  #If camera exists
-                self.btn = MDRaisedButton(text='Camera %d' % i, size_hint_y=None, height=44)
-                self.btn.bind(on_release=lambda btn: (self.dropdown.select(btn.text), app.cameraSelect(btn)))
-                self.dropdown.add_widget(self.btn)
-        self.mainbutton = MDFlatButton(text='Choose Camera', size_hint=(None, None), pos_hint ={'x':.5, 'y':.43}, id='camera')
-        self.mainbutton.bind(on_release=self.dropdown.open)
-        self.dropdown.bind(on_select=lambda instance, x: setattr(self.mainbutton, 'text', x))
-        self.root.get_screen('setting').add_widget(self.mainbutton)
+                self.btn = MDRaisedButton(text='Camera %d' % i, size_hint_y=None, height=44) #button settings
+                self.btn.bind(on_release=lambda btn: (self.dropdown.select(btn.text), app.cameraSelect(btn))) #bind fucntion to select
+                self.dropdown.add_widget(self.btn) #add option to dropdown menu
+        self.mainbutton = MDFlatButton(text='Choose Camera', size_hint=(None, None), pos_hint ={'x':.5, 'y':.43}, id='camera') #main button setting
+        self.mainbutton.bind(on_release=self.dropdown.open) #when main button pressed, open dropdown
+        self.dropdown.bind(on_select=lambda instance, x: setattr(self.mainbutton, 'text', x)) #when button pressed, run bonded function
+        self.root.get_screen('setting').add_widget(self.mainbutton) #replace main button with camera selection
+
 
     def cameraSelect(self, btn, *args): #Selecting camera
         self.CAMERA = btn.text[-1]
 
+
     def main(self):
         if self.camera == 0: # When Camera On
             self.image = Image() #Get image
-            # going to app.py for the function main(), which initialises variables to open camera
-            self.use_brect, self.hands, self.keypoint_classifier, self.cvFpsCalc, self.point_history, self.finger_gesture_history, self.keypoint_classifier_labels, self.cap = self.Init()
+            self.use_brect, self.hands, self.keypoint_classifier, self.cvFpsCalc, self.point_history, self.finger_gesture_history, self.keypoint_classifier_labels, self.cap = self.Init() #Initialising Camera
             self.number = None 
             self.data = None
             self.mode = 0
-            self.root.get_screen('translating').ids.screen1.add_widget(self.image)
+            self.root.get_screen('translating').ids.screen1.add_widget(self.image) #Add camera widget
             Clock.schedule_interval(self.load_video, 1.0/33.0) #scheduling image widget to be updated every 1.0/33.0 seconds
             self.camera = 1
  
@@ -652,6 +654,7 @@ class App(MDApp):
             Clock.schedule_once(self.keyReseter)
             self.root.get_screen('translating').ids.screen1.remove_widget(self.image) #remove widget image
     
+
     def Init(self): #Initialising of camera
         args = self.get_args() # Argument parsing
 
@@ -665,8 +668,8 @@ class App(MDApp):
         use_brect = True
 
         cap = cv2.VideoCapture(int(self.CAMERA))  # Camera preparation
-        cap.set(cv2.CAP_PROP_FRAME_WIDTH, cap_width)
-        cap.set(cv2.CAP_PROP_FRAME_HEIGHT, cap_height)
+        cap.set(cv2.CAP_PROP_FRAME_WIDTH, cap_width) # Camera width
+        cap.set(cv2.CAP_PROP_FRAME_HEIGHT, cap_height) # Camera height
 
         mp_hands = mp.solutions.hands # Model load
         hands = mp_hands.Hands(
@@ -703,60 +706,63 @@ class App(MDApp):
         mode = 0
         number = 0
 
-        return use_brect, hands, keypoint_classifier, cvFpsCalc, point_history, finger_gesture_history, keypoint_classifier_labels, cap
+        return use_brect, hands, keypoint_classifier, cvFpsCalc, point_history, finger_gesture_history, keypoint_classifier_labels, cap #return nessesary info
         
+
     def train(self): # Training SL Model
-        try: 
-            name = str(self.root.get_screen('translating').ids.name.text)
-            slot = int(self.root.get_screen('translating').ids.slot.text)
-        except:
+        try: # try getting name and model number
+            name = str(self.root.get_screen('translating').ids.name.text) # try getting name, returns error when empty
+            slot = int(self.root.get_screen('translating').ids.slot.text)# try getting model number, returns error when empty
+        except:# when error
             self.root.get_screen('translating').ids.name.error = True #invalid input
-            self.root.get_screen('translating').ids.slot.error = True 
+            self.root.get_screen('translating').ids.slot.error = True #invalid input
         if self.camera == 0:
             if name != "" and 0<slot<11: # Validation
                 # On #####################################################
                 self.image = Image()
                 self.newLandmarks = []
-                self.use_brect, self.hands, self.keypoint_classifier, self.cvFpsCalc, self.point_history, self.finger_gesture_history, self.keypoint_classifier_labels, self.cap = app.Init()
+                self.use_brect, self.hands, self.keypoint_classifier, self.cvFpsCalc, self.point_history, self.finger_gesture_history, self.keypoint_classifier_labels, self.cap = app.Init() #initialise camera
                 self.number = slot
                 self.mode = 1 #new data mode
                 self.data = 0
                 self.root.get_screen('translating').ids.screen2.add_widget(self.image) #adding widget
                 Clock.schedule_interval(self.load_video, 1.0/10.0) #updating image widget per 1.0/10.0seconds (slower than previously to save procesing power)
                 self.camera = 1
-                self.cancleButton = MDFlatButton(text='Cancel', on_press=app.cancel)
-                self.root.get_screen('translating').ids.screen2.add_widget(self.cancleButton)
+                self.cancleButton = MDFlatButton(text='Cancel', on_press=app.cancel) #press cancel to stop data collection process
+                self.root.get_screen('translating').ids.screen2.add_widget(self.cancleButton) #press cancel to stop data collection process
             else:
                 self.root.get_screen('translating').ids.name.error = True #invalid input, error = true
-                self.root.get_screen('translating').ids.slot.error = True 
+                self.root.get_screen('translating').ids.slot.error = True #invalid input
         elif self.camera == 1: # Off
             self.camera = 0
             self.key = 1
-            Clock.unschedule(self.load_video)
-            Clock.schedule_once(self.load_video, -1)
-            self.root.get_screen('translating').ids.screen2.remove_widget(self.image)
-            Clock.schedule_once(self.keyReseter)
+            Clock.unschedule(self.load_video) #switch off camera
+            Clock.schedule_once(self.load_video, -1) #switch off camera
+            self.root.get_screen('translating').ids.screen2.remove_widget(self.image) #switch off camera
+            Clock.schedule_once(self.keyReseter) #switch off camera
             self.root.get_screen('translating').ids.notification.text = "Training in Progress!\nPlease do not switch off the app\nEstimated time taken: 30s"
-            self.logging_csv(self.newLandmarks, slot, name)
-            self.root.get_screen('translating').ids.name.text = ""
-            self.root.get_screen('translating').ids.slot.text = ""
+            self.logging_csv(self.newLandmarks, slot, name) #add all new data into keyoint_classifier.csv, new model name into keyoint_classifier_label.csv
+            self.root.get_screen('translating').ids.name.text = "" #reset name
+            self.root.get_screen('translating').ids.slot.text = "" #reset model number
             self.training() # Train
             
+
     def cancel(self, *args):
-        self.camera = 0
+        self.camera = 0 
         self.key = 1
-        Clock.unschedule(self.load_video)
-        Clock.schedule_once(self.load_video, -1)
-        self.root.get_screen('translating').ids.screen2.remove_widget(self.image)
-        Clock.schedule_once(self.keyReseter)
-        self.newLandmarks = []
-        self.root.get_screen('translating').ids.name.text = ""
-        self.root.get_screen('translating').ids.slot.text = ""
-        self.root.get_screen('translating').ids.screen2.remove_widget(self.cancleButton)
+        Clock.unschedule(self.load_video) #switch off camera
+        Clock.schedule_once(self.load_video, -1) #switch off camera
+        self.root.get_screen('translating').ids.screen2.remove_widget(self.image) #switch off camera
+        Clock.schedule_once(self.keyReseter) #switch off camera
+        self.newLandmarks = [] #wipe all of previous training data
+        self.root.get_screen('translating').ids.name.text = "" #reset name
+        self.root.get_screen('translating').ids.slot.text = "" #reset model number
+        self.root.get_screen('translating').ids.screen2.remove_widget(self.cancleButton) #remove button
     
+
     @delayable
     def training(self, *args):
-        self.root.get_screen('translating').ids.screen2.remove_widget(self.cancleButton)
+        self.root.get_screen('translating').ids.screen2.remove_widget(self.cancleButton) #remove cancel button
         yield 1 
         report = keypoint.train() #goes to keypoint.py for train() function to train ml model, returns report with accuracy, precision ect. ect.
         #UI for popup
@@ -767,21 +773,24 @@ class App(MDApp):
         self.root.get_screen('translating').ids.notification.text = ""
         popup.open() #Open pop-up
 
+
     def keyReseter(self, *args):
         self.root.get_screen('translating').ids.translation.text = ""
         self.key = 0
 
+
     def load_video(self, *args):
-        #after initialisation in line 125, it uses the variables to go to app.py's loading() function to edit current image, and returns edited image
+        #after initialisation, it uses the variables to go to app.py's loading() function to edit current image, and returns edited image
         img, self.data = app.loading(self.mode, self.use_brect, self.hands, self.keypoint_classifier, self.cvFpsCalc, self.point_history, self.finger_gesture_history, self.keypoint_classifier_labels, self.cap, self.number, self.key, self.data)
         buffer = cv2.flip(img,0).tostring() 
         texture1 = Texture.create(size=(img.shape[1],img.shape[0]), colorfmt='bgr') # translating returned edited image to KIVY UI's texture
         texture1.blit_buffer(buffer, colorfmt='bgr',bufferfmt='ubyte')
         self.image.texture = texture1
-        self.root.get_screen('translating').ids.label.text = "Number of data collected: {}".format(str(self.data))
+        self.root.get_screen('translating').ids.label.text = "Number of data collected: {}".format(str(self.data)) #number of data collected
     
+
     def loading(self, mode, use_brect, hands, keypoint_classifier, cvFpsCalc, point_history, finger_gesture_history, keypoint_classifier_labels, cap, number, key, data):
-        fps = cvFpsCalc.get()
+        fps = cvFpsCalc.get() #calculating fps
 
         # Camera capture #####################################################
         ret, image = cap.read()
@@ -855,13 +864,13 @@ class App(MDApp):
             self.root.get_screen('translating').ids.translation.text = ""
             point_history.append([0, 0])
         
-        
         debug_image = self.draw_point_history(debug_image, point_history)
         debug_image = self.draw_info(debug_image, fps, mode, number)
 
         # cv2.imshow('Hand Gesture Recognition', debug_image) # Screen reflection 
         return debug_image, data
     
+
     def draw_info_text(self, image, brect, handedness, hand_sign_text,
                    finger_gesture_text):
         cv2.rectangle(image, (brect[0], brect[1]), (brect[2], brect[1] - 22),
@@ -882,6 +891,7 @@ class App(MDApp):
 
         return image
     
+
     def draw_landmarks(self, image, landmark_point):
         if len(landmark_point) > 0:
             # Thumb
@@ -1069,6 +1079,7 @@ class App(MDApp):
 
         return image
 
+
     def draw_bounding_rect(self, use_brect, image, brect):
         if use_brect:
             # Outer rectangle
@@ -1077,6 +1088,7 @@ class App(MDApp):
 
         return image
     
+
     def draw_point_history(self, image, point_history):
         for index, point in enumerate(point_history):
             if point[0] != 0 and point[1] != 0:
@@ -1084,6 +1096,7 @@ class App(MDApp):
                         (152, 251, 152), 2)
 
         return image
+
 
     def draw_info(self, image, fps, mode, number):
         cv2.putText(image, "FPS:" + str(fps), (10, 30), cv2.FONT_HERSHEY_SIMPLEX,
@@ -1102,6 +1115,7 @@ class App(MDApp):
                         cv2.LINE_AA)
         return image
 
+
     def calc_landmark_list(self, image, landmarks):
         image_width, image_height = image.shape[1], image.shape[0]
 
@@ -1117,6 +1131,7 @@ class App(MDApp):
 
         return landmark_point
     
+
     def pre_process_landmark(self, landmark_list):
         temp_landmark_list = copy.deepcopy(landmark_list)
 
@@ -1143,20 +1158,24 @@ class App(MDApp):
 
         return temp_landmark_list
 
-    def appending_data(self, number, mode, landmark_list, data):
+
+    def appending_data(self, number, mode, landmark_list, data): #appending data to list of new data
         if mode == 0:
             pass
         if mode == 1 and (0 <= number <= 9):
             self.newLandmarks.append([number+23, *landmark_list])
             return data + 1
         
-    def logging_csv(self, data, slot, name):
+
+    def logging_csv(self, data, slot, name): #add all new data into keyoint_classifier.csv, new model name into keyoint_classifier_label.csv
         label = []
         file = "signlanguage/model/keypoint_classifier/keypoint_classifier_label.csv"
+
         with open(file, "r") as fin: # New SL name in slot
             for _ in range(16):
                 label.append(fin.readline().strip("\n"))      
         label[5+slot-1] = name
+
         with open(file, "w") as fout: #logging label name
             fout.write("\n".join(label))
 
@@ -1166,7 +1185,8 @@ class App(MDApp):
                 writer = csv.writer(f)
                 writer.writerow(i) 
 
-    def calc_bounding_rect(self, image, landmarks):
+
+    def calc_bounding_rect(self, image, landmarks): #bounding rectanlge of hand
         image_width, image_height = image.shape[1], image.shape[0]
 
         landmark_array = np.empty((0, 2), int)
@@ -1182,6 +1202,7 @@ class App(MDApp):
         x, y, w, h = cv2.boundingRect(landmark_array)
 
         return [x, y, x + w, y + h]
+
 
     def get_args(self, *args):
         parser = argparse.ArgumentParser()
@@ -1204,8 +1225,9 @@ class App(MDApp):
 
         return args
 
-LabelBase.register(name='gothbold', fn_regular='GothamBold.otf')
-LabelBase.register(name='gothmedium', fn_regular='GothamMedium.ttf')
+
+LabelBase.register(name='gothbold', fn_regular='GothamBold.otf') #font
+LabelBase.register(name='gothmedium', fn_regular='GothamMedium.ttf') #font
 
 
 if __name__=="__main__":
