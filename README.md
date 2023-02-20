@@ -20,7 +20,7 @@ Our Anti-Spam Engine featured in The Straits Times
 # Requirements (please install the following before running any programs)
 * pip3 install pyttsx3
 * pip3 install SpeechRecognition
-* pip3 install tensorflow==2.10.0 (MAKE SURE VERSION 2.10.0 IS USED)
+* pip3 install tensorflow==2.10.0 (MAKE SURE VERSION 2.10.0 IS USED - other modules such as tensorflow-intel may also need to be downgraded if present)
 * pip3 install keras-utils
 * pip3 install transformers
 * pip3 install opencv-python
@@ -41,6 +41,7 @@ Our Anti-Spam Engine featured in The Straits Times
 * pip3 install pynput
 * pip3 install pyautogui
 * pip3 install screeninfo
+* pip3 install imutils
 
 # Demo
 ## To run Maintraining App:
