@@ -18,6 +18,7 @@ This repository contains the following contents.
 Our Anti-Spam Engine featured in The Straits Times
 
 # Requirements (please install the following before running any programs)
+* pip3 install "kivy[base]"
 * pip3 install pyttsx3
 * pip3 install SpeechRecognition
 * pip3 install tensorflow==2.10.0 (MAKE SURE VERSION 2.10.0 IS USED - other modules such as tensorflow-intel may also need to be downgraded if present)
@@ -31,7 +32,6 @@ Our Anti-Spam Engine featured in The Straits Times
 * pip3 install collection
 * pip3 install numpy
 * pip3 install mediapipe
-* pip3 install "kivy[base]"
 * pip3 install kivyoav
 * pip3 install scikit-learn
 * pip3 install pandas
