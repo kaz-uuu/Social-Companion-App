@@ -15,9 +15,9 @@ This repository contains the following contents.
 * Maintraining App
 
 # Requirements (please install the following before running any programs - only compatible with apple intel devices)
+s
 
-
-* pip3 install "kivy[base]"
+* pip3 install kivy
 * pip3 install pyttsx3
 * pip3 install SpeechRecognition
 * pip3 install tensorflow==2.10.0 (MAKE SURE VERSION 2.10.0 IS USED - other tf modules such as tensorflow-intel may also need to be downgraded if present)
@@ -44,9 +44,10 @@ This repository contains the following contents.
 
 # Demo
 ## To run Maintraining App:
-1. Navigate to MaintrainingApp Directory<br> eg. '''cd /Users/username/downloads/GitHub/social-companion-app-main/MaintrainingApp'''
+1. Navigate to MaintrainingApp Directory<br> eg. '''cd downloads/social-companion-app-main/MaintrainingApp'''
 2. Run '''python3 MaintrainingApp.py'''
-
+3. Allow terminal access to the camera
+4. Close the app and run it again
 # Directory
 <pre>
 Anti-Spam+Language_Correction   MaintrainingApp                 README.md                       assets
