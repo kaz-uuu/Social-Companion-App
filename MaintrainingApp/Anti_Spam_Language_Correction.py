@@ -32,7 +32,7 @@ def startscreenrecorder():
                 width = screen.width
                 height = screen.height
                 print("width: {}, height: {}".format(width, height)) # intermittent print statement for debugging
-                mactemplates = [cv2.imread('macosx_template_img.png', 0)] #reading the template image for mac from the assets file using opencv, and resize the image to fit the actual dimensions on the screen(2880 x 1880)
+                mactemplates = [cv2.imread('macosx_template_img.png', 0), cv2.imread('macos_template_img3.png', 0), cv2.imread('macos_template_img4.png', 0), cv2.imread('macos_template_img5.png', 0)] #reading the template image for mac from the assets file using opencv, and resize the image to fit the actual dimensions on the screen(2880 x 1880)
 
             #android is still a work in progress, not ready yet
             if platform == 'android':
