@@ -15,7 +15,7 @@ This repository contains the following contents.
 * Maintraining App
 
 # Requirements (please install the following before running any programs - only compatible with apple intel devices)
-This project has a requirements.txt file included to avoid installing all of these packages manually. Change directory to '''downloads/social-companion-app-main''' in your terminal and run '''pip --default-timeout=10000 install -r requirements.txt'''.
+This project has a requirements.txt file included to avoid installing all of these packages manually. Change directory to '''downloads/social-companion-app-main''' in your terminal and run '''pip3 --default-timeout=10000 install -r requirements.txt'''.
 
 If installing with requirements.txt does not work, please install the following packages manually:
 * pip3 install kivy
