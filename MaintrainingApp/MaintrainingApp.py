@@ -263,46 +263,46 @@ WindowManager:
                     text: ""
                     pos_hint: {"center_x": .97, "center_y": .3}
         
-            MDBottomNavigationItem:
-                id: screen2
-                name: 'screen2'
-                text: 'Training Sign Language'
-                MDLabel:
-                    id: notification
-                    pos_hint: {'center_y':0.5}
-                    pos_hint: {'center_x':0.5} 
-                MDTopAppBar:
-                    title: "Sign Language Trainer"
-                    pos_hint: {"center_y": 0.97}
-                    font_name: 'gothbold'
-                    left_action_items: [["home", lambda x: app.loadHomePage()]]
-                MDBoxLayout:
-                    id: box
-                    orientation: "vertical"
-                    pos_hint: {'center_y':0.2}
-                    adaptive_height: True
-                    spacing: 10
-                    padding: 20
-                    MDTextField:
-                        id: name
-                        hint_text: "Name"
-                        helper_text: "Name of Sign Language"
-                        helper_text_mode: "persistent"
-                    MDTextField:
-                        id: slot
-                        hint_text: "Slot"
-                        helper_text: "Pick a slot (1~10)"
-                        helper_text_mode: "persistent"
-                    MDRectangleFlatIconButton:
-                        id: mdbu
-                        text: "Start Training!"
-                        on_press: app.train()
-                        adaptive_size: True
-                        pos_hint: {'center_x':0.5}   
-                    MDLabel:
-                        id: label
-                        halign: 'center'    
-                        pos_hint: {'center_x':0.5}   
+            # MDBottomNavigationItem:
+            #     id: screen2
+            #     name: 'screen2'
+            #     text: 'Training Sign Language'
+            #     MDLabel:
+            #         id: notification
+            #         pos_hint: {'center_y':0.5}
+            #         pos_hint: {'center_x':0.5} 
+            #     MDTopAppBar:
+            #         title: "Sign Language Trainer"
+            #         pos_hint: {"center_y": 0.97}
+            #         font_name: 'gothbold'
+            #         left_action_items: [["home", lambda x: app.loadHomePage()]]
+            #     MDBoxLayout:
+            #         id: box
+            #         orientation: "vertical"
+            #         pos_hint: {'center_y':0.2}
+            #         adaptive_height: True
+            #         spacing: 10
+            #         padding: 20
+            #         MDTextField:
+            #             id: name
+            #             hint_text: "Name"
+            #             helper_text: "Name of Sign Language"
+            #             helper_text_mode: "persistent"
+            #         MDTextField:
+            #             id: slot
+            #             hint_text: "Slot"
+            #             helper_text: "Pick a slot (1~10)"
+            #             helper_text_mode: "persistent"
+            #         MDRectangleFlatIconButton:
+            #             id: mdbu
+            #             text: "Start Training!"
+            #             on_press: app.train()
+            #             adaptive_size: True
+            #             pos_hint: {'center_x':0.5}   
+            #         MDLabel:
+            #             id: label
+            #             halign: 'center'    
+            #             pos_hint: {'center_x':0.5}   
 
 <ResultsPage>:
     name: 'results'
@@ -786,7 +786,10 @@ class App(MDApp):
         texture1 = Texture.create(size=(img.shape[1],img.shape[0]), colorfmt='bgr') # translating returned edited image to KIVY UI's texture
         texture1.blit_buffer(buffer, colorfmt='bgr',bufferfmt='ubyte')
         self.image.texture = texture1
-        self.root.get_screen('translating').ids.label.text = "Number of data collected: {}".format(str(self.data)) #number of data collected
+        try:
+            self.root.get_screen('translating').ids.label.text = "Number of data collected: {}".format(str(self.data)) #number of data collected
+        except:
+            pass
     
 
     def loading(self, mode, use_brect, hands, keypoint_classifier, cvFpsCalc, point_history, finger_gesture_history, keypoint_classifier_labels, cap, number, key, data):
