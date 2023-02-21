@@ -5,8 +5,9 @@ Problem statement: *How might we allow people with Intellectual Disability (ID) 
 Proposed Solution: A companion app aimed to cultivate better social skills and correct behavior in those with IDs. 
 
 The proposed companion app has these 3 main features:
-1. A conversation simulator for those who can verbally communicate - comes up with conversation prompts and analyzes the user's reply using facial emotion recognition (not currently used for grading due to innacuracy) and natural language processing (sentiment analysis) - [@kaz-uuu](https://github.com/kaz-uuu)
-2. A training simulator for those who cannot verbally communicate - teaching appropriate sign languages, sign language decoder and a function to create new and unique sign language customized for each person - [@yanzhaoliu](https://github.com/yanzhaoliu)
+1. The conversation simulator aims to cultivate socially acceptable behaviors within PWIDS through remote means where social workers are not needed to be present physically. Furthermore, it acts as a safe space for users to practice their social skills. The conversation simulator provides a conversation prompt for the user to record a response to. The recorded response consist of an audio recording and data from a facial emotion recognition model. The text of the spoken response will then be assessed, with a NLP emotion analysis model being used to find the emotion behind the text. The response will then be grading according to how socially acceptable it is. Finally, feedback is provided to the user so that they can improve on their conversational skills. - [@kaz-uuu](https://github.com/kaz-uuu)
+
+2. A training simulator for those who cannot verbally communicate - teaching appropriate sign languages, sign language decoder and a function to create new and “unique” sign language customised for each person - [@yanzhaoliu](https://github.com/yanzhaoliu)
 3. A background script that prevents the user from spamming on Whatsapp - [@TYPHOON345](https://github.com/TYPHOON345)
 
 This repository contains the following contents.
