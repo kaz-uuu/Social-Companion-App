@@ -14,10 +14,6 @@ This repository contains the following contents.
 * Sign Language Program
 * Maintraining App
 
-<img src="straits time feature.png" width='400'>
-
-Our Anti-Spam Engine featured in The Straits Times
-
 # Requirements (please install the following before running any programs - only compatible with apple intel devices)
 
 
