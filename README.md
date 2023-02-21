@@ -17,7 +17,9 @@ This repository contains the following contents.
 
 Our Anti-Spam Engine featured in The Straits Times
 
-# Requirements (please install the following before running any programs)
+# Requirements (please install the following before running any programs - only compatible with apple intel devices)
+
+
 * pip3 install "kivy[base]"
 * pip3 install pyttsx3
 * pip3 install SpeechRecognition
