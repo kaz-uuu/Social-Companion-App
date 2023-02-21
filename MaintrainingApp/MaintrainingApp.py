@@ -573,7 +573,7 @@ class App(MDApp):
         self.root.transition = NoTransition() #no transition
         self.root.current = 'translating' #load translating page
     
-    
+
     def loadHomePage(self):
         if self.root.current == 'setting': #if the current page is in setting,
             try:
@@ -619,7 +619,7 @@ class App(MDApp):
         self.dropdown = DropDown() #dropdown
         for i in range(10): #testing camera 1 to 10
             cap = cv2.VideoCapture(i) 
-            if cap is None or not cap.isOpened():
+            if cap is None or not cap.isOpened(): #If camera is NOT (found and opened)
                 pass
             else:  #If camera exists
                 self.btn = MDRaisedButton(text='Camera %d' % i, size_hint_y=None, height=44) #button settings
@@ -632,7 +632,7 @@ class App(MDApp):
 
 
     def cameraSelect(self, btn, *args): #Selecting camera
-        self.CAMERA = btn.text[-1]
+        self.CAMERA = btn.text[-1] #Last letter of button
 
 
     def main(self):
@@ -640,14 +640,14 @@ class App(MDApp):
             self.image = Image() #Get image
             self.use_brect, self.hands, self.keypoint_classifier, self.cvFpsCalc, self.point_history, self.finger_gesture_history, self.keypoint_classifier_labels, self.cap = self.Init() #Initialising Camera
             self.number = None 
-            self.data = None
-            self.mode = 0
+            self.data = None 
+            self.mode = 0 #Translating mode
             self.root.get_screen('translating').ids.screen1.add_widget(self.image) #Add camera widget
             Clock.schedule_interval(self.load_video, 1.0/33.0) #scheduling image widget to be updated every 1.0/33.0 seconds
-            self.camera = 1
+            self.camera = 1 #Camera toggle on
  
         elif self.camera == 1: # When Camera Off
-            self.camera = 0
+            self.camera = 0 #Camera toggle off
             self.key = 1
             Clock.unschedule(self.load_video) #stop updating image widget
             Clock.schedule_once(self.load_video, -1) #update image widget one last time before next frame
@@ -859,13 +859,13 @@ class App(MDApp):
                     "Hand Motion Detected"
                     # point_history_classifier_labels[most_common_fg_id[0][0]],
                 )
-                self.root.get_screen('translating').ids.translation.text = keypoint_classifier_labels[hand_sign_id]
+                self.root.get_screen('translating').ids.translation.text = keypoint_classifier_labels[hand_sign_id] #set subtitles
         else:
-            self.root.get_screen('translating').ids.translation.text = ""
+            self.root.get_screen('translating').ids.translation.text = "" #set subtitles to None
             point_history.append([0, 0])
         
-        debug_image = self.draw_point_history(debug_image, point_history)
-        debug_image = self.draw_info(debug_image, fps, mode, number)
+        debug_image = self.draw_point_history(debug_image, point_history) #draw on debug_image
+        debug_image = self.draw_info(debug_image, fps, mode, number)  #draw on debug_image
 
         # cv2.imshow('Hand Gesture Recognition', debug_image) # Screen reflection 
         return debug_image, data
