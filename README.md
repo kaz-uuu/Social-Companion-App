@@ -44,7 +44,7 @@ This repository contains the following contents.
 
 # Demo
 ## To run Maintraining App:
-1. Navigate to MaintrainingApp Directory<br> eg. '''cd /Users/username/Documents/GitHub/Tech4Good/MaintrainingApp'''
+1. Navigate to MaintrainingApp Directory<br> eg. '''cd /Users/username/downloads/GitHub/social-companion-app-main/MaintrainingApp'''
 2. Run '''python3 MaintrainingApp.py'''
 
 # Directory
