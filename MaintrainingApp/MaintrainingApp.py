@@ -185,7 +185,7 @@ WindowManager:
             halign: 'center'
             pos_hint: {'center_y': .1}
         MDSwitch:
-            pos_hint: {'center_y': .1}
+            pos_hint: {"center_x": .75, "center_y": 0.093}
             on_active: app.antispam(*args)
 
 <TrainingPage>:
@@ -425,6 +425,7 @@ class App(MDApp):
         if self.oncam == False: #check if camera has been started already
             self.oncam = True #toggle camera state
             self.startcam()    
+        self.root.get_screen('training').ids.showwords.text = ''
 
     def startcam(self): #Load Camera
         self.image = Image() #Initialize image

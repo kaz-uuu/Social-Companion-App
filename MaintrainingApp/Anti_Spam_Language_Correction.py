@@ -105,14 +105,7 @@ def startscreenrecorder():
 def on_release(key):
     #global messagestring #set the messagestring and didlaucnhwhatsapp variables as global variables to access them from inside the function
     global didlaunchwhatsapp
-
     # #This is to update the messagestring variable according to what the user would have typed in the whatsapp 
-    # if hasattr(key, 'char') and key.char != None: #if the key pressed is a character
-    #     messagestring += key.char #add the character pressed into the entire message string variable
-    # if key == keyboard.Key.backspace: #if the user pressed backspace
-    #     messagestring = messagestring[:-1]#remove the last character from the messagestring
-    # if key == keyboard.Key.space: #if the user pressed space
-    #     messagestring += " "#add a space to the messagestring
     if key == keyboard.Key.enter:
         #if the user has pressed the enter key
         if platform == "macosx":
