@@ -1169,7 +1169,7 @@ class App(MDApp):
         if mode == 0:
             pass
         if mode == 1 and (0 <= number <= 9):
-            self.newLandmarks.append([number+23, *landmark_list])
+            self.newLandmarks.append([number+4, *landmark_list])
             return data + 1
         
 
