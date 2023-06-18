@@ -1,5 +1,5 @@
 # Social Companion App
-![alt text](https://drive.google.com/file/d/1Lm_DHoHMly-Pm6-K5LOSSAFi-x7UuPn8/view?usp=sharing)
+![alt text](https://drive.google.com/file/d/1Lm_DHoHMly-Pm6-K5LOSSAFi-x7UuPn8/preview)
 Problem statement: *How might we allow people with Intellectual Disability (ID) to correct & learn socially acceptable ways to communicate such that he/she can express his/her thoughts & feelings without offending others?*
 
 Proposed Solution: A companion app aimed to cultivate better social skills and correct behavior in those with IDs. 
