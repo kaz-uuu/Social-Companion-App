@@ -605,7 +605,8 @@ class App(MDApp):
                     self.root.get_screen('translating').ids.screen2.remove_widget(self.cancleButton) #remove cancel button on training page
                     self.root.get_screen('translating').ids.screen2.remove_widget(self.image) #switch off camera on training page
                 except:
-                    self.root.get_screen('training').ids.layout.remove_widget(self.image)  #remove camera on kazu's training page
+                    #self.root.get_screen('training').ids.layout.remove_widget(self.image)  #remove camera on kazu's training page
+                    pass
                 self.root.current = 'home' #go homepage
             else:
                 Clock.unschedule(self.loadVideo) # stop clock from loading video frames
