@@ -416,7 +416,7 @@ class App(MDApp):
         self.key = 0  
         return Builder.load_string(KV) #load kivy UI
     
-    # TRAING SIMULATOR ######################################################
+    # TRAINING SIMULATOR ######################################################
     def loadTrainingPage(self): #load training page and camera
         self.root.transition = NoTransition()
         self.root.current = 'training' #change page to training
